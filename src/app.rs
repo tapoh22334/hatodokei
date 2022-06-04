@@ -15,25 +15,15 @@ impl Default for TimeElement {
     }
 }
 
-/// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
-pub struct TemplateApp {
+pub struct Settings {
     master_volume: u32,
     master_mute: bool,
-
     time_table: Vec<TimeElement>,
-
-    #[serde(skip)]
-    stream: Option<OutputStream>,
-    #[serde(skip)]
-    stream_handle: Option<OutputStreamHandle>,
-    #[serde(skip)]
-    sink: Option<Sink>,
-
 }
 
-impl Default for TemplateApp {
+impl Default for Settings {
     fn default() -> Self {
         Self {
             master_volume: 100,
@@ -64,7 +54,30 @@ impl Default for TemplateApp {
                 TimeElement {h: 22, m: 0, mute: false},
                 TimeElement {h: 23, m: 0, mute: false},
             ],
+        }
+    }
+}
 
+
+/// We derive Deserialize/Serialize so we can persist app state on shutdown.
+#[derive(serde::Deserialize, serde::Serialize)]
+#[serde(default)] // if we add new fields, give them default values when deserializing old state
+pub struct TemplateApp {
+    settings: Settings,
+
+    #[serde(skip)]
+    stream: Option<OutputStream>,
+    #[serde(skip)]
+    stream_handle: Option<OutputStreamHandle>,
+    #[serde(skip)]
+    sink: Option<Sink>,
+
+}
+
+impl Default for TemplateApp {
+    fn default() -> Self {
+        Self {
+            settings: Settings::default(),
             stream: None,
             stream_handle: None,
             sink: None,
@@ -80,17 +93,24 @@ impl TemplateApp {
 
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
-        if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-        }
-
         let (s, sh) = OutputStream::try_default().unwrap();
         let snk = Sink::try_new(&sh).unwrap();
 
+        if let Some(storage) = cc.storage {
+            let mut stored: Self = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+
+            stored.stream        = Some(s);
+            stored.stream_handle = Some(sh);
+            stored.sink          = Some(snk);
+
+            return stored;
+        }
+
         TemplateApp {
-            stream: Some(s),
+            stream:        Some(s),
             stream_handle: Some(sh),
-            sink: Some(snk),
+            sink:          Some(snk),
+
             ..Default::default()
         }
     }
@@ -105,7 +125,7 @@ impl eframe::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        let Self {master_volume, master_mute, time_table, stream: _, stream_handle: _, sink} = self;
+        let Settings { master_volume, master_mute, time_table} = &mut self.settings;
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
@@ -115,7 +135,7 @@ impl eframe::App for TemplateApp {
                     if ui.button("Play sound 3").clicked() {
                         let popopopin = popopopin_generator();
                         for s in popopopin {
-                           sink.as_ref().unwrap().append(s)
+                           self.sink.as_ref().unwrap().append(s)
                         }
                     }
 
@@ -123,7 +143,7 @@ impl eframe::App for TemplateApp {
                        // Load a sound from a file, using a path relative to Cargo.toml
                        let file = File::open("sound.mp3").unwrap();
                        let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
-                       sink.as_ref().unwrap().append(source);
+                       self.sink.as_ref().unwrap().append(source);
                     }
 
                     else if ui.button("Quit").clicked() {
@@ -137,12 +157,30 @@ impl eframe::App for TemplateApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.group(|ui| {
-                    ui.add(egui::Slider::new(master_volume, 0..=100));
 
-                    {
-                        let l = if *master_mute { "Muting" } else { "" };
-                        ui.checkbox(master_mute, l);
+                    // UI view
+                    ui.add(egui::Slider::new(master_volume, 0..=100));
+                    if *master_mute {
+                        ui.checkbox(master_mute, "Muting" );
+                    } else {
+                        ui.checkbox(master_mute, "");
                     }
+
+                    // Write device setting
+                    {
+                        let current_volume = self.sink.as_ref().unwrap().volume();
+                        let volume_magnification = (*master_volume as f32) / 100.;
+
+                        if *master_mute && current_volume != 0.0 {
+                            self.sink.as_ref().unwrap().set_volume(0.0);
+                        }
+
+                        if ! *master_mute
+                            && (volume_magnification - current_volume).abs() >= 0.01 {
+                            self.sink.as_ref().unwrap().set_volume(volume_magnification);
+                        }
+                    }
+
                 });
             });
 
