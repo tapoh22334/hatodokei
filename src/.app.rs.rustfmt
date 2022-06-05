@@ -250,7 +250,9 @@ impl eframe::App for TemplateApp {
                                            time_table[row_index].h,
                                            time_table[row_index].m,
                                            );
-                        ui.label(time);
+                        ui.add(
+                            egui::Label::new(time),
+                            );
                     });
                     row.col(|ui| {
                         ui.checkbox(&mut time_table[row_index].mute, "");
@@ -275,8 +277,7 @@ impl eframe::App for TemplateApp {
                             //let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
                             let index = time_table[row_index].h as usize;
                             //let cursor = std::io::Cursor::new(&self.voice_data[index]);
-                            let source = rodio::Decoder::new(
-                                std::io::Cursor::new( self.voice_data[index].clone() )).unwrap();
+                            let source = rodio::Decoder::new(std::io::Cursor::new(&self.voice_data[index])).unwrap();
                             self.sink.as_ref().unwrap().append(source);
                         }
                     });
