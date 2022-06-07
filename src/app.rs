@@ -1,14 +1,32 @@
-#[derive(serde::Deserialize, serde::Serialize)]
+use chrono::Timelike;
+
+#[derive(serde::Deserialize, serde::Serialize, Copy, Clone, Debug)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
-pub struct TimeElement {
+pub struct TTElement {
     h: u32,
     m: u32,
-    mute: bool,
+    active: bool,
 }
 
-impl Default for TimeElement {
+impl Default for TTElement {
     fn default() -> Self {
-        Self { h: 0, m: 0, mute: false, }
+        Self { h: 0, m: 0, active: true, }
+    }
+}
+
+impl TTElement {
+    pub fn time(&self) -> u32 {
+        (Self::join(self.h, self.m)).into()
+    }
+
+    pub fn join(h: u32, m: u32) -> u32{
+        h * 100 + m
+    }
+
+    pub fn sub(h1: u32, m1: u32, h2: u32, m2: u32) -> u32 {
+        let v1 = Self::join(h1, m1) as i32;
+        let v2 = Self::join(h2, m2) as i32;
+        ((v1 - v2 + 2359) % 2359) as u32
     }
 }
 
@@ -17,7 +35,7 @@ impl Default for TimeElement {
 pub struct Settings {
     master_volume: u32,
     master_mute: bool,
-    time_table: Vec<TimeElement>,
+    time_table: Vec<TTElement>,
 }
 
 impl Default for Settings {
@@ -26,65 +44,152 @@ impl Default for Settings {
             master_volume: 100,
             master_mute: false,
             time_table: vec![
-                TimeElement {h: 0,  m: 0, mute: false},
-                TimeElement {h: 1,  m: 0, mute: false},
-                TimeElement {h: 2,  m: 0, mute: false},
-                TimeElement {h: 3,  m: 0, mute: false},
-                TimeElement {h: 4,  m: 0, mute: false},
-                TimeElement {h: 5,  m: 0, mute: false},
-                TimeElement {h: 6,  m: 0, mute: false},
-                TimeElement {h: 7,  m: 0, mute: false},
-                TimeElement {h: 8,  m: 0, mute: false},
-                TimeElement {h: 9,  m: 0, mute: false},
-                TimeElement {h: 10, m: 0, mute: false},
-                TimeElement {h: 11, m: 0, mute: false},
-                TimeElement {h: 12, m: 0, mute: false},
-                TimeElement {h: 13, m: 0, mute: false},
-                TimeElement {h: 14, m: 0, mute: false},
-                TimeElement {h: 15, m: 0, mute: false},
-                TimeElement {h: 16, m: 0, mute: false},
-                TimeElement {h: 17, m: 0, mute: false},
-                TimeElement {h: 18, m: 0, mute: false},
-                TimeElement {h: 19, m: 0, mute: false},
-                TimeElement {h: 20, m: 0, mute: false},
-                TimeElement {h: 21, m: 0, mute: false},
-                TimeElement {h: 22, m: 0, mute: false},
-                TimeElement {h: 23, m: 0, mute: false},
+                TTElement {h: 0,  m: 0, active: true},
+                TTElement {h: 1,  m: 0, active: false},
+                TTElement {h: 2,  m: 0, active: false},
+                TTElement {h: 3,  m: 0, active: false},
+                TTElement {h: 4,  m: 0, active: false},
+                TTElement {h: 5,  m: 0, active: false},
+                TTElement {h: 6,  m: 0, active: false},
+                TTElement {h: 7,  m: 0, active: false},
+                TTElement {h: 8,  m: 0, active: true},
+                TTElement {h: 9,  m: 0, active: true},
+                TTElement {h: 10, m: 0, active: true},
+                TTElement {h: 11, m: 0, active: true},
+                TTElement {h: 12, m: 0, active: true},
+                TTElement {h: 13, m: 0, active: true},
+                TTElement {h: 14, m: 0, active: true},
+                TTElement {h: 15, m: 0, active: true},
+                TTElement {h: 16, m: 0, active: true},
+                TTElement {h: 17, m: 0, active: true},
+                TTElement {h: 18, m: 0, active: true},
+                TTElement {h: 19, m: 0, active: true},
+                TTElement {h: 20, m: 0, active: true},
+                TTElement {h: 21, m: 0, active: true},
+                TTElement {h: 22, m: 0, active: true},
+                TTElement {h: 23, m: 0, active: true},
             ],
         }
     }
 }
 
-//pub struct Dispatcher {
-//}
-//
-//impl Default for Dispatcher {
-//    fn default() -> Self {
-//        Self { ..Default::default() }
-//    }
-//        //std::thread::spawn( move || {
-//        //    let mut last_frame: DateTime<Local> = Local::now();
-//
-//        //    loop {
-//        //        let now: DateTime<Local> = Local::now();
-//        //        let sleep_milliseconds = (1000. / MAX_FPS) as u32;
-//
-//        //        std::thread::sleep(std::time::Duration::new(0, sleep_milliseconds * 1000000));
-//        //        let sleep_milliseconds = (last_frame - now).num_milliseconds()
-//        //            - ((1000.0 / MAX_FPS) as i64);
-//
-//        //        if  sleep_milliseconds > 0 {
-//        //            std::thread::sleep(std::time::Duration::new(0, sleep_milliseconds as u32 * 1000000));
-//        //            last_frame = now;
-//        //        }
-//        //    }
-//        //});
-//
-//}
+pub enum SMessage {
+    Overwrite(TTElement),
+    Delete(TTElement),
+}
+
+pub struct Scheduler {}
+
+use chrono::Local;
+use chrono::DateTime;
+
+const MAX_FPS : f32 = 1.0;
+impl Scheduler {
+    fn activate(tx_sc: std::sync::mpsc::Sender<SCMessage>) -> std::sync::mpsc::Sender<SMessage>{
+        use std::sync::mpsc;
+        let (tx, rx) = mpsc::channel::<SMessage>();
+        let mut time_table: Vec::<TTElement> = Vec::new();
+        let mut next_play: Option<TTElement> = None;
+
+        std::thread::spawn( move || {
+
+            let mut last_frame: DateTime<Local> = Local::now();
+
+            loop {
+                let now: DateTime<Local> = Local::now();
+
+                // sleep fixed time and remove jitter.
+                //
+                let sleep_milliseconds = (1000. / MAX_FPS) as u32;
+                //std::thread::sleep(std::time::Duration::new(0, sleep_milliseconds * 1000000));
+                //let sleep_milliseconds = ((1000.0 / MAX_FPS) as i64) - (last_frame - now).num_milliseconds();
+
+                print!("{}:", now);
+                print!("{}:", last_frame);
+                print!("[{}]", sleep_milliseconds);
+                print!("[next:{:?}]", next_play);
+
+                if sleep_milliseconds > 0 {
+                    let rv = rx.recv_timeout(std::time::Duration::from_millis(sleep_milliseconds as u64));
+                    if let Ok(msg) = rv {
+                        Self::process_message(&mut time_table, msg);
+                        next_play = None;
+
+                        println!("message received");
+                    } else if let Err(e) = rv {
+                        println!("sleep but no message {:?}", e);
+                    }
+
+                } else {
+                    println!("Note: Slow down");
+                    let rv = rx.try_recv();
+                    if let Ok(msg) = rv {
+                        Self::process_message(&mut time_table, msg);
+                        next_play = None;
+
+                    }
+                };
+
+                if next_play.is_none() {
+                    let target = now + chrono::Duration::minutes(1);
+                    next_play = Some(*time_table.iter().min_by_key(
+                            |x| TTElement::sub(x.h, x.m, target.hour(), target.minute())).unwrap());
+                }
+
+                {
+                    let index = next_play.unwrap().h;
+                    let h = chrono::Duration::hours(next_play.unwrap().h.into());
+                    let m = chrono::Duration::minutes(next_play.unwrap().m.into());
+                    if (now - (h + m)).minute() == 0 {
+                        let sources: Vec<SoundSource> = vec![
+                            SoundSource::Popopopin(),
+                            SoundSource::Silence(0.75),
+                            SoundSource::Voice(index),
+                        ];
+                        SoundCoordinator::play(&tx_sc, PlayInfo {
+                                    volume: 100,
+                                    sources: sources,
+                            });
+                        next_play = None;
+                    }
+                }
+
+                last_frame = now;
+            }
+        });
+
+        tx
+    }
+
+    fn process_message(timetable: &mut Vec::<TTElement>, message: SMessage){
+        match message {
+            SMessage::Overwrite(src) => {
+                println!("{:?}", src);
+                if let Some(row) = timetable.iter_mut().find(|e| e.h == src.h && e.m == src.m) {
+                    row.active = src.active;
+                } else {
+                    timetable.push(src);
+                }
+            }
+            SMessage::Delete(target)    => {
+                println!("{:?}", target);
+                timetable.retain(|e| e.h == target.h && e.m == target.m);
+            }
+        };
+
+        timetable.sort_by(|a, b| {
+            let j = |row: &TTElement| row.h * 1000 + row.m;
+            (a.time()).partial_cmp(&b.time()).unwrap()
+        });
+
+        println!("{:?}", timetable);
+    }
+}
 
 pub struct PresetVoice {}
 
 impl PresetVoice {
+    // TODO: Improve this function to not use clone
     pub fn voice_data(index: u32) -> Vec<u8> {
             let voice_data = vec![
                 include_bytes!("data/0000.wav").to_vec(), include_bytes!("data/0100.wav").to_vec(),
@@ -104,6 +209,11 @@ impl PresetVoice {
     }
 }
 
+use std::time::Duration;
+use rodio;
+use rodio::{OutputStream, OutputStreamHandle, Sink};
+use rodio::source::{SineWave, Source};
+
 pub enum SoundSource {
     Popopopin(),
     Silence(f32),
@@ -116,71 +226,81 @@ pub struct PlayInfo {
     sources: Vec<SoundSource>,
 }
 
+#[derive(Default)]
+pub struct SCMessage {
+    master_volume: Option<u32>,
+    play_info: Option<PlayInfo>,
+}
+
 pub struct ExSink {
     volume: u32,
     sink: Sink,
 }
 
-pub struct SoundCoordinator {
-    master_volume: u32,
-    stream: OutputStream,
-    stream_handle: OutputStreamHandle,
-    exsinks: Vec<ExSink>,
-}
-
-impl Default for SoundCoordinator {
-    fn default() -> Self {
-        let (s, sh) = OutputStream::try_default().unwrap();
-
-        Self {
-            master_volume: 100,
-            stream: s,
-            stream_handle: sh,
-            exsinks: Vec::<ExSink>::default(),
-        }
-
-    }
-}
-
-use std::time::Duration;
-use rodio;
-use rodio::{OutputStream, OutputStreamHandle, Sink};
-use rodio::source::{SineWave, Source};
+pub struct SoundCoordinator { }
 
 impl SoundCoordinator {
-    pub fn play(&mut self, playinfo: PlayInfo) {
+
+    pub fn activate() -> std::sync::mpsc::Sender<SCMessage> {
+        use std::sync::mpsc;
+        let (tx, rx) = mpsc::channel::<SCMessage>();
+        let mut master_volume: u32 = 100;
+
+        std::thread::spawn( move || {
+            let mut exsinks = Vec::<ExSink>::default();
+            let (s, sh) = OutputStream::try_default().unwrap();
+
+            loop {
+                let message = rx.recv().unwrap_or(SCMessage::default());
+                if let Some(playinfo) = message.play_info {
+                    let sink = Self::_play(&playinfo, &sh);
+                    sink.set_volume(Self::to_volume_magnification(
+                            master_volume,
+                            playinfo.volume));
+
+                    let exsink: ExSink = ExSink {
+                        volume: playinfo.volume, sink: sink};
+                    exsinks.push(exsink);
+                } else {
+                    for ExSink {volume, sink} in &exsinks {
+                        master_volume = message.master_volume.unwrap();
+                        sink.set_volume(Self::to_volume_magnification(
+                                master_volume, *volume));
+                    }
+                }
+
+                while let Some(index) = exsinks.iter().position(
+                    |ExSink{volume: _, sink}|  sink.empty() ) {
+                    exsinks.remove(index);
+                }
+            }
+        });
+
+        tx
+    }
+
+    fn _play(playinfo: &PlayInfo, streamhandle: &OutputStreamHandle) -> Sink {
         let PlayInfo {volume, sources} = playinfo;
-        let mut sink = Sink::try_new(&self.stream_handle).unwrap();
+        let mut sink = Sink::try_new(streamhandle).unwrap();
 
-        let mut exsink: ExSink = ExSink {volume: volume, sink: sink};
-
-        self.update_exsinks();
         for source in sources {
             match source {
-                SoundSource::Popopopin()        => {Self::play_popopopin(&mut exsink.sink);}
-                SoundSource::Silence(sec)       => {Self::play_none(&mut exsink.sink, sec);}
-                SoundSource::Voice(index) => { Self::play_preset_voice(&mut exsink.sink, index); }
+                SoundSource::Popopopin()        => {Self::play_popopopin(&mut sink);}
+                SoundSource::Silence(sec)       => {Self::play_none(&mut sink, *sec);}
+                SoundSource::Voice(index) => { Self::play_preset_voice(&mut sink, *index); }
                 SoundSource::Path(_path)         => {} // Not implemented
             };
 
         }
-
-        exsink.sink.set_volume(
-            Self::to_volume_magnification(self.master_volume, volume));
-        self.exsinks.push(exsink);
+        sink
     }
 
-    pub fn set_master_volume(&mut self, mv: u32) {
-        self.master_volume = mv;
-        for ExSink {volume, sink} in &self.exsinks {
-            sink.set_volume(Self::to_volume_magnification(mv, *volume));
-        }
+    pub fn play(tx: &std::sync::mpsc::Sender<SCMessage>, play_info: PlayInfo) {
+        tx.send(SCMessage {master_volume: None, play_info: Some(play_info)});
     }
 
-    fn update_exsinks(&mut self) {
-        while let Some(index) = self.exsinks.iter().position( |ExSink{volume: _, sink}|  sink.empty() ) {
-            self.exsinks.remove(index);
-        }
+    pub fn set_master_volume(tx: &std::sync::mpsc::Sender<SCMessage>, mv: u32) {
+        tx.send(SCMessage {master_volume: Some(mv), play_info: None});
     }
 
     fn to_volume_magnification(master_volume: u32, volume: u32) -> f32 {
@@ -222,19 +342,19 @@ impl SoundCoordinator {
 pub struct TemplateApp {
     settings: Settings,
     #[serde(skip)]
-    sound_coordinator: SoundCoordinator,
+    tx_sc: Option<std::sync::mpsc::Sender<SCMessage>>,
+    #[serde(skip)]
+    tx_s: Option<std::sync::mpsc::Sender<SMessage>>,
 }
 
 impl Default for TemplateApp {
     fn default() -> Self {
         Self {
             settings: Settings::default(),
-            sound_coordinator: SoundCoordinator::default(),
+            tx_sc: None,
+            tx_s: None,
         }
     }
-}
-
-impl TemplateApp {
 }
 
 impl TemplateApp {
@@ -242,17 +362,36 @@ impl TemplateApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customized the look at feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
+        let tx_sc = SoundCoordinator::activate();
+        let tx_s  = Scheduler::activate(tx_sc.clone());
+        let tx_s_for_init = tx_s.clone();
+
+        let mut app;
 
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
-        if let Some(storage) = cc.storage {
-            let mut stored: Self = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-            return stored;
+        //
+        //if let Some(storage) = cc.storage {
+        //    let mut stored: Self = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+        //    stored.tx_sc = Some(tx_sc);
+        //    stored.tx_s = Some(tx_s);
+        //    app = stored;
+        //}
+        //else
+        {
+            app = TemplateApp {
+                tx_sc: Some(tx_sc),
+                tx_s:  Some(tx_s),
+                ..Default::default()
+            }
         }
 
-        TemplateApp {
-            ..Default::default()
+        for row in &app.settings.time_table {
+            tx_s_for_init.send(SMessage::Overwrite(row.clone()));
         }
+
+        app
+
     }
 
 }
@@ -296,10 +435,9 @@ impl eframe::App for TemplateApp {
                     // Write device setting
                     {
                         if *master_mute {
-                            self.sound_coordinator.set_master_volume(0);
-                        }
-                        else {
-                            self.sound_coordinator.set_master_volume(*master_volume);
+                            SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), 0);
+                        } else {
+                            SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), *master_volume);
                         }
                     }
 
@@ -339,20 +477,19 @@ impl eframe::App for TemplateApp {
                         ui.label(time);
                     });
                     row.col(|ui| {
-                        ui.checkbox(&mut time_table[row_index].mute, "");
+                        ui.checkbox(&mut time_table[row_index].active, "");
                     });
                     row.col(|ui| {
                         let voice_num = time_table[row_index].h;
 
                         let icon = emojis::get_by_shortcode("arrow_forward").unwrap().as_str();
-                        let b = ui.small_button(icon).clicked();
-                        if b {
+                        if ui.small_button(icon).clicked() {
                             let sources: Vec<SoundSource> = vec![
                                         SoundSource::Popopopin(),
                                         SoundSource::Silence(0.75),
                                         SoundSource::Voice(voice_num),
                                     ];
-                            self.sound_coordinator.play(PlayInfo {
+                            SoundCoordinator::play(self.tx_sc.as_ref().unwrap(), PlayInfo {
                                     volume: 100,
                                     sources: sources,
                             });
