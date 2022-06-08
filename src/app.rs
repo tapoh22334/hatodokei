@@ -233,10 +233,10 @@ impl eframe::App for TemplateApp {
                 //    );
                 //} else {
                 //    ui.checkbox(master_mute, "Mute");
-                //    sound_coordinator::SoundCoordinator::set_master_volume(
-                //        self.tx_sc.as_ref().unwrap(),
-                //        *master_volume,
-                //    );
+                sound_coordinator::SoundCoordinator::set_master_volume(
+                    self.tx_sc.as_ref().unwrap(),
+                    *master_volume,
+                );
                 //}
                 //});
             });
