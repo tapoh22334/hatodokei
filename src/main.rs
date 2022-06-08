@@ -7,7 +7,11 @@ fn main() {
     // Log to stdout (if you run with `RUST_LOG=debug`).
     tracing_subscriber::fmt::init();
 
-    let native_options = eframe::NativeOptions::default();
+    //let native_options = eframe::NativeOptions::default();
+    let native_options = eframe::NativeOptions {
+        resizable: false,
+        ..eframe::NativeOptions::default()
+    };
     eframe::run_native(
         "hatodokei",
         native_options,

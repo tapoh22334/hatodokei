@@ -200,6 +200,8 @@ impl eframe::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        ctx.set_visuals(egui::style::Visuals::dark());
+
         let Settings {
             master_volume,
             master_mute,
@@ -218,24 +220,27 @@ impl eframe::App for TemplateApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.horizontal(|ui| {
+            ui.vertical(|ui| {
                 ui.group(|ui| {
                     // UI view
-                    ui.add(egui::Slider::new(master_volume, 0..=100));
+                    ui.add(egui::Slider::new(master_volume, 0..=100).suffix("%"));
+
                     if *master_mute {
                         ui.checkbox(master_mute, "Muting");
                         sound_coordinator::SoundCoordinator::set_master_volume(
                             self.tx_sc.as_ref().unwrap(),
                             0,
-                        );
+                            );
                     } else {
-                        ui.checkbox(master_mute, "");
+                        ui.checkbox(master_mute, "Mute");
                         sound_coordinator::SoundCoordinator::set_master_volume(
                             self.tx_sc.as_ref().unwrap(),
                             *master_volume,
-                        );
+                            );
                     }
                 });
+
+
             });
 
             use egui_extras::{Size, TableBuilder};
@@ -298,7 +303,7 @@ impl eframe::App for TemplateApp {
 }
 
 fn clock_emoji(row_index: usize) -> String {
-    char::from_u32(0x1f550 + row_index as u32 % 24)
+    char::from_u32(0x1f550 + (row_index + 23) as u32 % 12)
         .unwrap()
         .to_string()
 }
