@@ -438,10 +438,7 @@ impl SoundCoordinator {
             SoundSource::Silence(0.75),
             SoundSource::Voice(voice_index),
         ];
-        let play_info = PlayInfo {
-            volume,
-            sources,
-        };
+        let play_info = PlayInfo { volume, sources };
 
         Self::play(tx, play_info);
     }
