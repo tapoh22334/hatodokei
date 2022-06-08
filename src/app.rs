@@ -220,82 +220,85 @@ impl eframe::App for TemplateApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.vertical(|ui| {
-                //ui.group(|ui| {
-                // UI view
-                ui.add(egui::Slider::new(master_volume, 0..=100).suffix("%"));
+            ui.vertical_centered(|ui| {
+                ui.group(|ui| {
+                    // UI view
+                    ui.add(egui::Slider::new(master_volume, 0..=100).suffix("%"));
 
-                //if *master_mute {
-                //    ui.checkbox(master_mute, "Muting");
-                //    sound_coordinator::SoundCoordinator::set_master_volume(
-                //        self.tx_sc.as_ref().unwrap(),
-                //        0,
-                //    );
-                //} else {
-                //    ui.checkbox(master_mute, "Mute");
-                sound_coordinator::SoundCoordinator::set_master_volume(
-                    self.tx_sc.as_ref().unwrap(),
-                    *master_volume,
-                );
-                //}
-                //});
-            });
-
-            use egui_extras::{Size, TableBuilder};
-            TableBuilder::new(ui)
-                .striped(true)
-                .cell_layout(egui::Layout::left_to_right().with_cross_align(egui::Align::Center))
-                .column(Size::initial(10.0).at_least(10.0))
-                .column(Size::initial(35.0).at_least(35.0))
-                .column(Size::initial(15.0).at_least(15.0))
-                .column(Size::initial(15.0).at_least(15.0))
-                .header(0.0, |mut header| {
-                    header.col(|ui| {
-                        ui.heading("");
-                    });
-                    header.col(|ui| {
-                        ui.heading("");
-                    });
-                })
-                .body(|body| {
-                    body.rows(20., time_table.len(), |row_index, mut row| {
-                        row.col(|ui| {
-                            ui.label(clock_emoji(time_table[row_index].h as usize));
-                        });
-                        row.col(|ui| {
-                            let time = format!(
-                                "{0:>02}:{1:>02}",
-                                time_table[row_index].h, time_table[row_index].m,
-                            );
-                            ui.label(time);
-                        });
-                        row.col(|ui| {
-                            ui.checkbox(&mut time_table[row_index].active, "");
-                            if time_table[row_index].active
-                                != self.time_table_diff_base[row_index].active
-                            {
-                                scheduler::Scheduler::edit(
-                                    self.tx_s.as_ref().unwrap(),
-                                    &time_table[row_index],
-                                );
-                                self.time_table_diff_base[row_index].active =
-                                    time_table[row_index].active;
-                            }
-                        });
-                        row.col(|ui| {
-                            let voice_index = time_table[row_index].h;
-
-                            let icon = emojis::get_by_shortcode("arrow_forward").unwrap().as_str();
-                            if ui.small_button(icon).clicked() {
-                                sound_coordinator::SoundCoordinator::play_full_set_list(
-                                    self.tx_sc.as_ref().unwrap(),
-                                    voice_index,
-                                    100,
-                                );
-                            }
-                        });
-                    });
+                    //if *master_mute {
+                    //    ui.checkbox(master_mute, "Muting");
+                    //    sound_coordinator::SoundCoordinator::set_master_volume(
+                    //        self.tx_sc.as_ref().unwrap(),
+                    //        0,
+                    //    );
+                    //} else {
+                    //    ui.checkbox(master_mute, "Mute");
+                    sound_coordinator::SoundCoordinator::set_master_volume(
+                        self.tx_sc.as_ref().unwrap(),
+                        *master_volume,
+                    );
+                    //}
                 });
+
+                use egui_extras::{Size, TableBuilder};
+                TableBuilder::new(ui)
+                    .striped(true)
+                    .cell_layout(
+                        egui::Layout::left_to_right().with_cross_align(egui::Align::Center),
+                    )
+                    .column(Size::initial(10.0).at_least(10.0))
+                    .column(Size::initial(35.0).at_least(35.0))
+                    .column(Size::initial(15.0).at_least(15.0))
+                    .column(Size::initial(15.0).at_least(15.0))
+                    .header(0.0, |mut header| {
+                        header.col(|ui| {
+                            ui.heading("");
+                        });
+                        header.col(|ui| {
+                            ui.heading("");
+                        });
+                    })
+                    .body(|body| {
+                        body.rows(20., time_table.len(), |row_index, mut row| {
+                            row.col(|ui| {
+                                ui.label(clock_emoji(time_table[row_index].h as usize));
+                            });
+                            row.col(|ui| {
+                                let time = format!(
+                                    "{0:>02}:{1:>02}",
+                                    time_table[row_index].h, time_table[row_index].m,
+                                );
+                                ui.label(time);
+                            });
+                            row.col(|ui| {
+                                ui.checkbox(&mut time_table[row_index].active, "");
+                                if time_table[row_index].active
+                                    != self.time_table_diff_base[row_index].active
+                                {
+                                    scheduler::Scheduler::edit(
+                                        self.tx_s.as_ref().unwrap(),
+                                        &time_table[row_index],
+                                    );
+                                    self.time_table_diff_base[row_index].active =
+                                        time_table[row_index].active;
+                                }
+                            });
+                            row.col(|ui| {
+                                let voice_index = time_table[row_index].h;
+
+                                let icon =
+                                    emojis::get_by_shortcode("arrow_forward").unwrap().as_str();
+                                if ui.small_button(icon).clicked() {
+                                    sound_coordinator::SoundCoordinator::play_full_set_list(
+                                        self.tx_sc.as_ref().unwrap(),
+                                        voice_index,
+                                        100,
+                                    );
+                                }
+                            });
+                        });
+                    });
+            });
         });
     }
 }
