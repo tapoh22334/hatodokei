@@ -75,6 +75,9 @@ impl Default for Settings {
 
 pub enum SMessage {
     Overwrite(TTElement),
+    // Not impremented
+    // this element is reserved for adding/deleting schedule.
+    #[allow(unused)]
     Delete(TTElement),
 }
 
@@ -134,22 +137,17 @@ impl Scheduler {
                     let target = now + chrono::Duration::minutes(1);
                     next_play = Some(*time_table.iter().min_by_key(
                             |x| TTElement::sub(x.h, x.m, target.hour(), target.minute())).unwrap());
-                }
-
-                {
+                } else {
                     let index = next_play.unwrap().h;
                     let h = chrono::Duration::hours(next_play.unwrap().h.into());
                     let m = chrono::Duration::minutes(next_play.unwrap().m.into());
-                    if (now - (h + m)).minute() == 0 {
-                        let sources: Vec<SoundSource> = vec![
-                            SoundSource::Popopopin(),
-                            SoundSource::Silence(0.75),
-                            SoundSource::Voice(index),
-                        ];
-                        SoundCoordinator::play(&tx_sc, PlayInfo {
-                                    volume: 100,
-                                    sources: sources,
-                            });
+                    let now_h = chrono::Duration::hours(now.hour().into());
+                    let now_m = chrono::Duration::minutes(now.minute().into());
+
+                    let sub = (h + m) - (now_h + now_m);
+
+                    if sub.num_minutes() == 0 {
+                        SoundCoordinator::play_full_set_list(&tx_sc, index, 100);
                         next_play = None;
                     }
                 }
@@ -178,11 +176,14 @@ impl Scheduler {
         };
 
         timetable.sort_by(|a, b| {
-            let j = |row: &TTElement| row.h * 1000 + row.m;
             (a.time()).partial_cmp(&b.time()).unwrap()
         });
 
         println!("{:?}", timetable);
+    }
+
+    fn edit(tx_s: &std::sync::mpsc::Sender<SMessage>, row: &TTElement) {
+        tx_s.send(SMessage::Overwrite(row.clone())).unwrap();
     }
 }
 
@@ -218,6 +219,9 @@ pub enum SoundSource {
     Popopopin(),
     Silence(f32),
     Voice(u32),
+    // Not impremented.
+    // this element is reserved for playing user prepared voice data.
+    #[allow(unused)]
     Path(String),
 }
 
@@ -248,12 +252,13 @@ impl SoundCoordinator {
 
         std::thread::spawn( move || {
             let mut exsinks = Vec::<ExSink>::default();
+            #[allow(unused)]
             let (s, sh) = OutputStream::try_default().unwrap();
 
             loop {
                 let message = rx.recv().unwrap_or(SCMessage::default());
                 if let Some(playinfo) = message.play_info {
-                    let sink = Self::_play(&playinfo, &sh);
+                    let sink = Self::_play(&playinfo.sources, &sh);
                     sink.set_volume(Self::to_volume_magnification(
                             master_volume,
                             playinfo.volume));
@@ -279,8 +284,7 @@ impl SoundCoordinator {
         tx
     }
 
-    fn _play(playinfo: &PlayInfo, streamhandle: &OutputStreamHandle) -> Sink {
-        let PlayInfo {volume, sources} = playinfo;
+    fn _play(sources: &Vec<SoundSource>, streamhandle: &OutputStreamHandle) -> Sink {
         let mut sink = Sink::try_new(streamhandle).unwrap();
 
         for source in sources {
@@ -296,11 +300,25 @@ impl SoundCoordinator {
     }
 
     pub fn play(tx: &std::sync::mpsc::Sender<SCMessage>, play_info: PlayInfo) {
-        tx.send(SCMessage {master_volume: None, play_info: Some(play_info)});
+        tx.send(SCMessage {master_volume: None, play_info: Some(play_info)}).unwrap();
+    }
+
+    pub fn play_full_set_list(tx: &std::sync::mpsc::Sender<SCMessage>, voice_index: u32, volume: u32) {
+        let sources: Vec<SoundSource> = vec![
+            SoundSource::Popopopin(),
+            SoundSource::Silence(0.75),
+            SoundSource::Voice(voice_index),
+        ];
+        let play_info = PlayInfo {
+            volume: volume,
+            sources: sources,
+        };
+
+        Self::play(&tx, play_info);
     }
 
     pub fn set_master_volume(tx: &std::sync::mpsc::Sender<SCMessage>, mv: u32) {
-        tx.send(SCMessage {master_volume: Some(mv), play_info: None});
+        tx.send(SCMessage {master_volume: Some(mv), play_info: None}).unwrap();
     }
 
     fn to_volume_magnification(master_volume: u32, volume: u32) -> f32 {
@@ -342,6 +360,8 @@ impl SoundCoordinator {
 pub struct TemplateApp {
     settings: Settings,
     #[serde(skip)]
+    time_table_diff_base: Vec<TTElement>,
+    #[serde(skip)]
     tx_sc: Option<std::sync::mpsc::Sender<SCMessage>>,
     #[serde(skip)]
     tx_s: Option<std::sync::mpsc::Sender<SMessage>>,
@@ -351,6 +371,7 @@ impl Default for TemplateApp {
     fn default() -> Self {
         Self {
             settings: Settings::default(),
+            time_table_diff_base: Vec::new(),
             tx_sc: None,
             tx_s: None,
         }
@@ -371,13 +392,13 @@ impl TemplateApp {
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
         //
-        //if let Some(storage) = cc.storage {
-        //    let mut stored: Self = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-        //    stored.tx_sc = Some(tx_sc);
-        //    stored.tx_s = Some(tx_s);
-        //    app = stored;
-        //}
-        //else
+        if let Some(storage) = cc.storage {
+            let mut stored: Self = eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+            stored.tx_sc = Some(tx_sc);
+            stored.tx_s = Some(tx_s);
+            app = stored;
+        }
+        else
         {
             app = TemplateApp {
                 tx_sc: Some(tx_sc),
@@ -387,7 +408,8 @@ impl TemplateApp {
         }
 
         for row in &app.settings.time_table {
-            tx_s_for_init.send(SMessage::Overwrite(row.clone()));
+            app.time_table_diff_base.push(row.clone());
+            Scheduler::edit(&tx_s_for_init, row);
         }
 
         app
@@ -428,17 +450,10 @@ impl eframe::App for TemplateApp {
                     ui.add(egui::Slider::new(master_volume, 0..=100));
                     if *master_mute {
                         ui.checkbox(master_mute, "Muting" );
+                        SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), 0);
                     } else {
                         ui.checkbox(master_mute, "");
-                    }
-
-                    // Write device setting
-                    {
-                        if *master_mute {
-                            SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), 0);
-                        } else {
-                            SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), *master_volume);
-                        }
+                        SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), *master_volume);
                     }
 
                 });
@@ -478,21 +493,18 @@ impl eframe::App for TemplateApp {
                     });
                     row.col(|ui| {
                         ui.checkbox(&mut time_table[row_index].active, "");
+                        if time_table[row_index].active != self.time_table_diff_base[row_index].active {
+                            Scheduler::edit(self.tx_s.as_ref().unwrap(), &time_table[row_index]);
+                            self.time_table_diff_base[row_index].active = time_table[row_index].active;
+                        }
+
                     });
                     row.col(|ui| {
-                        let voice_num = time_table[row_index].h;
+                        let voice_index = time_table[row_index].h;
 
                         let icon = emojis::get_by_shortcode("arrow_forward").unwrap().as_str();
                         if ui.small_button(icon).clicked() {
-                            let sources: Vec<SoundSource> = vec![
-                                        SoundSource::Popopopin(),
-                                        SoundSource::Silence(0.75),
-                                        SoundSource::Voice(voice_num),
-                                    ];
-                            SoundCoordinator::play(self.tx_sc.as_ref().unwrap(), PlayInfo {
-                                    volume: 100,
-                                    sources: sources,
-                            });
+                            SoundCoordinator::play_full_set_list(self.tx_sc.as_ref().unwrap(), voice_index, 100);
                         }
                     });
                 });
