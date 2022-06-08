@@ -230,17 +230,15 @@ impl eframe::App for TemplateApp {
                         sound_coordinator::SoundCoordinator::set_master_volume(
                             self.tx_sc.as_ref().unwrap(),
                             0,
-                            );
+                        );
                     } else {
                         ui.checkbox(master_mute, "Mute");
                         sound_coordinator::SoundCoordinator::set_master_volume(
                             self.tx_sc.as_ref().unwrap(),
                             *master_volume,
-                            );
+                        );
                     }
                 });
-
-
             });
 
             use egui_extras::{Size, TableBuilder};
