@@ -10,7 +10,11 @@ pub struct TTElement {
 
 impl Default for TTElement {
     fn default() -> Self {
-        Self { h: 0, m: 0, active: true, }
+        Self {
+            h: 0,
+            m: 0,
+            active: true,
+        }
     }
 }
 
@@ -19,7 +23,7 @@ impl TTElement {
         (Self::join(self.h, self.m)).into()
     }
 
-    pub fn join(h: u32, m: u32) -> u32{
+    pub fn join(h: u32, m: u32) -> u32 {
         h * 100 + m
     }
 
@@ -44,30 +48,126 @@ impl Default for Settings {
             master_volume: 100,
             master_mute: false,
             time_table: vec![
-                TTElement {h: 0,  m: 0, active: true},
-                TTElement {h: 1,  m: 0, active: false},
-                TTElement {h: 2,  m: 0, active: false},
-                TTElement {h: 3,  m: 0, active: false},
-                TTElement {h: 4,  m: 0, active: false},
-                TTElement {h: 5,  m: 0, active: false},
-                TTElement {h: 6,  m: 0, active: false},
-                TTElement {h: 7,  m: 0, active: false},
-                TTElement {h: 8,  m: 0, active: true},
-                TTElement {h: 9,  m: 0, active: true},
-                TTElement {h: 10, m: 0, active: true},
-                TTElement {h: 11, m: 0, active: true},
-                TTElement {h: 12, m: 0, active: true},
-                TTElement {h: 13, m: 0, active: true},
-                TTElement {h: 14, m: 0, active: true},
-                TTElement {h: 15, m: 0, active: true},
-                TTElement {h: 16, m: 0, active: true},
-                TTElement {h: 17, m: 0, active: true},
-                TTElement {h: 18, m: 0, active: true},
-                TTElement {h: 19, m: 0, active: true},
-                TTElement {h: 20, m: 0, active: true},
-                TTElement {h: 21, m: 0, active: true},
-                TTElement {h: 22, m: 0, active: true},
-                TTElement {h: 23, m: 0, active: true},
+                TTElement {
+                    h: 0,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 1,
+                    m: 0,
+                    active: false,
+                },
+                TTElement {
+                    h: 2,
+                    m: 0,
+                    active: false,
+                },
+                TTElement {
+                    h: 3,
+                    m: 0,
+                    active: false,
+                },
+                TTElement {
+                    h: 4,
+                    m: 0,
+                    active: false,
+                },
+                TTElement {
+                    h: 5,
+                    m: 0,
+                    active: false,
+                },
+                TTElement {
+                    h: 6,
+                    m: 0,
+                    active: false,
+                },
+                TTElement {
+                    h: 7,
+                    m: 0,
+                    active: false,
+                },
+                TTElement {
+                    h: 8,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 9,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 10,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 11,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 12,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 13,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 14,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 15,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 16,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 17,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 18,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 19,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 20,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 21,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 22,
+                    m: 0,
+                    active: true,
+                },
+                TTElement {
+                    h: 23,
+                    m: 0,
+                    active: true,
+                },
             ],
         }
     }
@@ -83,19 +183,18 @@ pub enum SMessage {
 
 pub struct Scheduler {}
 
-use chrono::Local;
 use chrono::DateTime;
+use chrono::Local;
 
-const MAX_FPS : f32 = 1.0;
+const MAX_FPS: f32 = 1.0;
 impl Scheduler {
-    fn activate(tx_sc: std::sync::mpsc::Sender<SCMessage>) -> std::sync::mpsc::Sender<SMessage>{
+    fn activate(tx_sc: std::sync::mpsc::Sender<SCMessage>) -> std::sync::mpsc::Sender<SMessage> {
         use std::sync::mpsc;
         let (tx, rx) = mpsc::channel::<SMessage>();
-        let mut time_table: Vec::<TTElement> = Vec::new();
+        let mut time_table: Vec<TTElement> = Vec::new();
         let mut next_play: Option<TTElement> = None;
 
-        std::thread::spawn( move || {
-
+        std::thread::spawn(move || {
             let mut last_frame: DateTime<Local> = Local::now();
 
             loop {
@@ -113,7 +212,8 @@ impl Scheduler {
                 print!("[next:{:?}]", next_play);
 
                 if sleep_milliseconds > 0 {
-                    let rv = rx.recv_timeout(std::time::Duration::from_millis(sleep_milliseconds as u64));
+                    let rv = rx
+                        .recv_timeout(std::time::Duration::from_millis(sleep_milliseconds as u64));
                     if let Ok(msg) = rv {
                         Self::process_message(&mut time_table, msg);
                         next_play = None;
@@ -122,21 +222,25 @@ impl Scheduler {
                     } else if let Err(e) = rv {
                         println!("sleep but no message {:?}", e);
                     }
-
                 } else {
                     println!("Note: Slow down");
                     let rv = rx.try_recv();
                     if let Ok(msg) = rv {
                         Self::process_message(&mut time_table, msg);
                         next_play = None;
-
                     }
                 };
 
                 if next_play.is_none() {
                     let target = now + chrono::Duration::minutes(1);
-                    next_play = Some(*time_table.iter().min_by_key(
-                            |x| TTElement::sub(x.h, x.m, target.hour(), target.minute())).unwrap());
+                    next_play = Some(
+                        *time_table
+                            .iter()
+                            .min_by_key(|x| {
+                                TTElement::sub(x.h, x.m, target.hour(), target.minute())
+                            })
+                            .unwrap(),
+                    );
                 } else {
                     let index = next_play.unwrap().h;
                     let h = chrono::Duration::hours(next_play.unwrap().h.into());
@@ -159,7 +263,7 @@ impl Scheduler {
         tx
     }
 
-    fn process_message(timetable: &mut Vec::<TTElement>, message: SMessage){
+    fn process_message(timetable: &mut Vec<TTElement>, message: SMessage) {
         match message {
             SMessage::Overwrite(src) => {
                 println!("{:?}", src);
@@ -169,15 +273,13 @@ impl Scheduler {
                     timetable.push(src);
                 }
             }
-            SMessage::Delete(target)    => {
+            SMessage::Delete(target) => {
                 println!("{:?}", target);
                 timetable.retain(|e| e.h == target.h && e.m == target.m);
             }
         };
 
-        timetable.sort_by(|a, b| {
-            (a.time()).partial_cmp(&b.time()).unwrap()
-        });
+        timetable.sort_by(|a, b| (a.time()).partial_cmp(&b.time()).unwrap());
 
         println!("{:?}", timetable);
     }
@@ -192,28 +294,40 @@ pub struct PresetVoice {}
 impl PresetVoice {
     // TODO: Improve this function to not use clone
     pub fn voice_data(index: u32) -> Vec<u8> {
-            let voice_data = vec![
-                include_bytes!("data/0000.wav").to_vec(), include_bytes!("data/0100.wav").to_vec(),
-                include_bytes!("data/0200.wav").to_vec(), include_bytes!("data/0300.wav").to_vec(),
-                include_bytes!("data/0400.wav").to_vec(), include_bytes!("data/0500.wav").to_vec(),
-                include_bytes!("data/0600.wav").to_vec(), include_bytes!("data/0700.wav").to_vec(),
-                include_bytes!("data/0800.wav").to_vec(), include_bytes!("data/0900.wav").to_vec(),
-                include_bytes!("data/1000.wav").to_vec(), include_bytes!("data/1100.wav").to_vec(),
-                include_bytes!("data/1200.wav").to_vec(), include_bytes!("data/1300.wav").to_vec(),
-                include_bytes!("data/1400.wav").to_vec(), include_bytes!("data/1500.wav").to_vec(),
-                include_bytes!("data/1600.wav").to_vec(), include_bytes!("data/1700.wav").to_vec(),
-                include_bytes!("data/1800.wav").to_vec(), include_bytes!("data/1900.wav").to_vec(),
-                include_bytes!("data/2000.wav").to_vec(), include_bytes!("data/2100.wav").to_vec(),
-                include_bytes!("data/2200.wav").to_vec(), include_bytes!("data/2300.wav").to_vec(),
-            ];
-            voice_data[index as usize].clone()
+        let voice_data = vec![
+            include_bytes!("data/0000.wav").to_vec(),
+            include_bytes!("data/0100.wav").to_vec(),
+            include_bytes!("data/0200.wav").to_vec(),
+            include_bytes!("data/0300.wav").to_vec(),
+            include_bytes!("data/0400.wav").to_vec(),
+            include_bytes!("data/0500.wav").to_vec(),
+            include_bytes!("data/0600.wav").to_vec(),
+            include_bytes!("data/0700.wav").to_vec(),
+            include_bytes!("data/0800.wav").to_vec(),
+            include_bytes!("data/0900.wav").to_vec(),
+            include_bytes!("data/1000.wav").to_vec(),
+            include_bytes!("data/1100.wav").to_vec(),
+            include_bytes!("data/1200.wav").to_vec(),
+            include_bytes!("data/1300.wav").to_vec(),
+            include_bytes!("data/1400.wav").to_vec(),
+            include_bytes!("data/1500.wav").to_vec(),
+            include_bytes!("data/1600.wav").to_vec(),
+            include_bytes!("data/1700.wav").to_vec(),
+            include_bytes!("data/1800.wav").to_vec(),
+            include_bytes!("data/1900.wav").to_vec(),
+            include_bytes!("data/2000.wav").to_vec(),
+            include_bytes!("data/2100.wav").to_vec(),
+            include_bytes!("data/2200.wav").to_vec(),
+            include_bytes!("data/2300.wav").to_vec(),
+        ];
+        voice_data[index as usize].clone()
     }
 }
 
-use std::time::Duration;
 use rodio;
-use rodio::{OutputStream, OutputStreamHandle, Sink};
 use rodio::source::{SineWave, Source};
+use rodio::{OutputStream, OutputStreamHandle, Sink};
+use std::time::Duration;
 
 pub enum SoundSource {
     Popopopin(),
@@ -241,16 +355,15 @@ pub struct ExSink {
     sink: Sink,
 }
 
-pub struct SoundCoordinator { }
+pub struct SoundCoordinator {}
 
 impl SoundCoordinator {
-
     pub fn activate() -> std::sync::mpsc::Sender<SCMessage> {
         use std::sync::mpsc;
         let (tx, rx) = mpsc::channel::<SCMessage>();
         let mut master_volume: u32 = 100;
 
-        std::thread::spawn( move || {
+        std::thread::spawn(move || {
             let mut exsinks = Vec::<ExSink>::default();
             #[allow(unused)]
             let (s, sh) = OutputStream::try_default().unwrap();
@@ -260,22 +373,26 @@ impl SoundCoordinator {
                 if let Some(playinfo) = message.play_info {
                     let sink = Self::_play(&playinfo.sources, &sh);
                     sink.set_volume(Self::to_volume_magnification(
-                            master_volume,
-                            playinfo.volume));
+                        master_volume,
+                        playinfo.volume,
+                    ));
 
                     let exsink: ExSink = ExSink {
-                        volume: playinfo.volume, sink: sink};
+                        volume: playinfo.volume,
+                        sink: sink,
+                    };
                     exsinks.push(exsink);
                 } else {
-                    for ExSink {volume, sink} in &exsinks {
+                    for ExSink { volume, sink } in &exsinks {
                         master_volume = message.master_volume.unwrap();
-                        sink.set_volume(Self::to_volume_magnification(
-                                master_volume, *volume));
+                        sink.set_volume(Self::to_volume_magnification(master_volume, *volume));
                     }
                 }
 
-                while let Some(index) = exsinks.iter().position(
-                    |ExSink{volume: _, sink}|  sink.empty() ) {
+                while let Some(index) = exsinks
+                    .iter()
+                    .position(|ExSink { volume: _, sink }| sink.empty())
+                {
                     exsinks.remove(index);
                 }
             }
@@ -289,21 +406,34 @@ impl SoundCoordinator {
 
         for source in sources {
             match source {
-                SoundSource::Popopopin()        => {Self::play_popopopin(&mut sink);}
-                SoundSource::Silence(sec)       => {Self::play_none(&mut sink, *sec);}
-                SoundSource::Voice(index) => { Self::play_preset_voice(&mut sink, *index); }
-                SoundSource::Path(_path)         => {} // Not implemented
+                SoundSource::Popopopin() => {
+                    Self::play_popopopin(&mut sink);
+                }
+                SoundSource::Silence(sec) => {
+                    Self::play_none(&mut sink, *sec);
+                }
+                SoundSource::Voice(index) => {
+                    Self::play_preset_voice(&mut sink, *index);
+                }
+                SoundSource::Path(_path) => {} // Not implemented
             };
-
         }
         sink
     }
 
     pub fn play(tx: &std::sync::mpsc::Sender<SCMessage>, play_info: PlayInfo) {
-        tx.send(SCMessage {master_volume: None, play_info: Some(play_info)}).unwrap();
+        tx.send(SCMessage {
+            master_volume: None,
+            play_info: Some(play_info),
+        })
+        .unwrap();
     }
 
-    pub fn play_full_set_list(tx: &std::sync::mpsc::Sender<SCMessage>, voice_index: u32, volume: u32) {
+    pub fn play_full_set_list(
+        tx: &std::sync::mpsc::Sender<SCMessage>,
+        voice_index: u32,
+        volume: u32,
+    ) {
         let sources: Vec<SoundSource> = vec![
             SoundSource::Popopopin(),
             SoundSource::Silence(0.75),
@@ -318,23 +448,40 @@ impl SoundCoordinator {
     }
 
     pub fn set_master_volume(tx: &std::sync::mpsc::Sender<SCMessage>, mv: u32) {
-        tx.send(SCMessage {master_volume: Some(mv), play_info: None}).unwrap();
+        tx.send(SCMessage {
+            master_volume: Some(mv),
+            play_info: None,
+        })
+        .unwrap();
     }
 
     fn to_volume_magnification(master_volume: u32, volume: u32) -> f32 {
-        (master_volume as f32) / 100. *
-        (volume as f32) / 100.
+        (master_volume as f32) / 100. * (volume as f32) / 100.
     }
 
     fn play_popopopin(sink: &mut Sink) {
         let popopopin = vec![
-            SineWave::new(440.0).take_duration(Duration::from_secs_f32(0.25)).amplify(0.20),
-            SineWave::new(0.).take_duration(Duration::from_secs_f32(0.75)).amplify(0.20),
-            SineWave::new(440.0).take_duration(Duration::from_secs_f32(0.25)).amplify(0.20),
-            SineWave::new(0.).take_duration(Duration::from_secs_f32(0.75)).amplify(0.20),
-            SineWave::new(440.0).take_duration(Duration::from_secs_f32(0.25)).amplify(0.20),
-            SineWave::new(0.).take_duration(Duration::from_secs_f32(0.75)).amplify(0.20),
-            SineWave::new(880.0).take_duration(Duration::from_secs_f32(2.)).amplify(0.20),
+            SineWave::new(440.0)
+                .take_duration(Duration::from_secs_f32(0.25))
+                .amplify(0.20),
+            SineWave::new(0.)
+                .take_duration(Duration::from_secs_f32(0.75))
+                .amplify(0.20),
+            SineWave::new(440.0)
+                .take_duration(Duration::from_secs_f32(0.25))
+                .amplify(0.20),
+            SineWave::new(0.)
+                .take_duration(Duration::from_secs_f32(0.75))
+                .amplify(0.20),
+            SineWave::new(440.0)
+                .take_duration(Duration::from_secs_f32(0.25))
+                .amplify(0.20),
+            SineWave::new(0.)
+                .take_duration(Duration::from_secs_f32(0.75))
+                .amplify(0.20),
+            SineWave::new(880.0)
+                .take_duration(Duration::from_secs_f32(2.))
+                .amplify(0.20),
         ];
         for s in popopopin {
             sink.append(s);
@@ -342,13 +489,15 @@ impl SoundCoordinator {
     }
 
     fn play_none(sink: &mut Sink, sec: f32) {
-        let sinwave = SineWave::new(0.).take_duration(Duration::from_secs_f32(sec)).amplify(0.0);
+        let sinwave = SineWave::new(0.)
+            .take_duration(Duration::from_secs_f32(sec))
+            .amplify(0.0);
         sink.append(sinwave);
     }
 
     fn play_preset_voice(sink: &mut Sink, index: u32) {
-        let source = rodio::Decoder::new(
-            std::io::Cursor::new(PresetVoice::voice_data(index))).unwrap();
+        let source =
+            rodio::Decoder::new(std::io::Cursor::new(PresetVoice::voice_data(index))).unwrap();
 
         sink.append(source);
     }
@@ -384,7 +533,7 @@ impl TemplateApp {
         // This is also where you can customized the look at feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
         let tx_sc = SoundCoordinator::activate();
-        let tx_s  = Scheduler::activate(tx_sc.clone());
+        let tx_s = Scheduler::activate(tx_sc.clone());
         let tx_s_for_init = tx_s.clone();
 
         let mut app;
@@ -397,12 +546,10 @@ impl TemplateApp {
             stored.tx_sc = Some(tx_sc);
             stored.tx_s = Some(tx_s);
             app = stored;
-        }
-        else
-        {
+        } else {
             app = TemplateApp {
                 tx_sc: Some(tx_sc),
-                tx_s:  Some(tx_s),
+                tx_s: Some(tx_s),
                 ..Default::default()
             }
         }
@@ -413,9 +560,7 @@ impl TemplateApp {
         }
 
         app
-
     }
-
 }
 
 impl eframe::App for TemplateApp {
@@ -427,17 +572,19 @@ impl eframe::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        let Settings { master_volume, master_mute, time_table } = &mut self.settings;
+        let Settings {
+            master_volume,
+            master_mute,
+            time_table,
+        } = &mut self.settings;
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
-
                     if ui.button("Quit").clicked() {
                         frame.quit();
                     }
-
                 });
             });
         });
@@ -445,73 +592,77 @@ impl eframe::App for TemplateApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.group(|ui| {
-
                     // UI view
                     ui.add(egui::Slider::new(master_volume, 0..=100));
                     if *master_mute {
-                        ui.checkbox(master_mute, "Muting" );
+                        ui.checkbox(master_mute, "Muting");
                         SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), 0);
                     } else {
                         ui.checkbox(master_mute, "");
-                        SoundCoordinator::set_master_volume(self.tx_sc.as_ref().unwrap(), *master_volume);
+                        SoundCoordinator::set_master_volume(
+                            self.tx_sc.as_ref().unwrap(),
+                            *master_volume,
+                        );
                     }
-
                 });
             });
 
-        use egui_extras::{TableBuilder, Size};
-        TableBuilder::new(ui)
-            .striped(true)
-            .cell_layout(egui::Layout::left_to_right().with_cross_align(egui::Align::Center))
-            .column(Size::initial(10.0).at_least(10.0))
-            .column(Size::initial(35.0).at_least(35.0))
-            .column(Size::initial(15.0).at_least(15.0))
-            .column(Size::initial(15.0).at_least(15.0))
-
-            .header(0.0, |mut header| {
-                header.col(|ui| {
-                    ui.heading("");
-                });
-                header.col(|ui| {
-                    ui.heading("");
-                });
-            })
-
-            .body(|body| {
-                body.rows(20., time_table.len(), |row_index, mut row| {
-                    row.col(|ui| {
-                        ui.label(
-                            clock_emoji(time_table[row_index].h as usize)
+            use egui_extras::{Size, TableBuilder};
+            TableBuilder::new(ui)
+                .striped(true)
+                .cell_layout(egui::Layout::left_to_right().with_cross_align(egui::Align::Center))
+                .column(Size::initial(10.0).at_least(10.0))
+                .column(Size::initial(35.0).at_least(35.0))
+                .column(Size::initial(15.0).at_least(15.0))
+                .column(Size::initial(15.0).at_least(15.0))
+                .header(0.0, |mut header| {
+                    header.col(|ui| {
+                        ui.heading("");
+                    });
+                    header.col(|ui| {
+                        ui.heading("");
+                    });
+                })
+                .body(|body| {
+                    body.rows(20., time_table.len(), |row_index, mut row| {
+                        row.col(|ui| {
+                            ui.label(clock_emoji(time_table[row_index].h as usize));
+                        });
+                        row.col(|ui| {
+                            let time = format!(
+                                "{0:>02}:{1:>02}",
+                                time_table[row_index].h, time_table[row_index].m,
                             );
-                    });
-                    row.col(|ui| {
-                        let time = format!("{0:>02}:{1:>02}",
-                                           time_table[row_index].h,
-                                           time_table[row_index].m,
-                                           );
-                        ui.label(time);
-                    });
-                    row.col(|ui| {
-                        ui.checkbox(&mut time_table[row_index].active, "");
-                        if time_table[row_index].active != self.time_table_diff_base[row_index].active {
-                            Scheduler::edit(self.tx_s.as_ref().unwrap(), &time_table[row_index]);
-                            self.time_table_diff_base[row_index].active = time_table[row_index].active;
-                        }
+                            ui.label(time);
+                        });
+                        row.col(|ui| {
+                            ui.checkbox(&mut time_table[row_index].active, "");
+                            if time_table[row_index].active
+                                != self.time_table_diff_base[row_index].active
+                            {
+                                Scheduler::edit(
+                                    self.tx_s.as_ref().unwrap(),
+                                    &time_table[row_index],
+                                );
+                                self.time_table_diff_base[row_index].active =
+                                    time_table[row_index].active;
+                            }
+                        });
+                        row.col(|ui| {
+                            let voice_index = time_table[row_index].h;
 
-                    });
-                    row.col(|ui| {
-                        let voice_index = time_table[row_index].h;
-
-                        let icon = emojis::get_by_shortcode("arrow_forward").unwrap().as_str();
-                        if ui.small_button(icon).clicked() {
-                            SoundCoordinator::play_full_set_list(self.tx_sc.as_ref().unwrap(), voice_index, 100);
-                        }
+                            let icon = emojis::get_by_shortcode("arrow_forward").unwrap().as_str();
+                            if ui.small_button(icon).clicked() {
+                                SoundCoordinator::play_full_set_list(
+                                    self.tx_sc.as_ref().unwrap(),
+                                    voice_index,
+                                    100,
+                                );
+                            }
+                        });
                     });
                 });
-            });
-
         });
-
     }
 }
 
