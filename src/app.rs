@@ -222,22 +222,22 @@ impl eframe::App for TemplateApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical(|ui| {
                 //ui.group(|ui| {
-                    // UI view
-                    ui.add(egui::Slider::new(master_volume, 0..=100).suffix("%"));
+                // UI view
+                ui.add(egui::Slider::new(master_volume, 0..=100).suffix("%"));
 
-                    //if *master_mute {
-                    //    ui.checkbox(master_mute, "Muting");
-                    //    sound_coordinator::SoundCoordinator::set_master_volume(
-                    //        self.tx_sc.as_ref().unwrap(),
-                    //        0,
-                    //    );
-                    //} else {
-                    //    ui.checkbox(master_mute, "Mute");
-                    //    sound_coordinator::SoundCoordinator::set_master_volume(
-                    //        self.tx_sc.as_ref().unwrap(),
-                    //        *master_volume,
-                    //    );
-                    //}
+                //if *master_mute {
+                //    ui.checkbox(master_mute, "Muting");
+                //    sound_coordinator::SoundCoordinator::set_master_volume(
+                //        self.tx_sc.as_ref().unwrap(),
+                //        0,
+                //    );
+                //} else {
+                //    ui.checkbox(master_mute, "Mute");
+                //    sound_coordinator::SoundCoordinator::set_master_volume(
+                //        self.tx_sc.as_ref().unwrap(),
+                //        *master_volume,
+                //    );
+                //}
                 //});
             });
 
