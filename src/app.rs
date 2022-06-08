@@ -7,7 +7,7 @@ use crate::ttelement;
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct Settings {
     master_volume: u32,
-    master_mute: bool,
+    //master_mute: bool,
     time_table: Vec<ttelement::TTElement>,
 }
 
@@ -15,7 +15,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             master_volume: 100,
-            master_mute: false,
+            //master_mute: false,
             time_table: vec![
                 ttelement::TTElement {
                     h: 0,
@@ -204,7 +204,7 @@ impl eframe::App for TemplateApp {
 
         let Settings {
             master_volume,
-            master_mute,
+            //master_mute,
             time_table,
         } = &mut self.settings;
 
@@ -221,24 +221,24 @@ impl eframe::App for TemplateApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical(|ui| {
-                ui.group(|ui| {
+                //ui.group(|ui| {
                     // UI view
                     ui.add(egui::Slider::new(master_volume, 0..=100).suffix("%"));
 
-                    if *master_mute {
-                        ui.checkbox(master_mute, "Muting");
-                        sound_coordinator::SoundCoordinator::set_master_volume(
-                            self.tx_sc.as_ref().unwrap(),
-                            0,
-                        );
-                    } else {
-                        ui.checkbox(master_mute, "Mute");
-                        sound_coordinator::SoundCoordinator::set_master_volume(
-                            self.tx_sc.as_ref().unwrap(),
-                            *master_volume,
-                        );
-                    }
-                });
+                    //if *master_mute {
+                    //    ui.checkbox(master_mute, "Muting");
+                    //    sound_coordinator::SoundCoordinator::set_master_volume(
+                    //        self.tx_sc.as_ref().unwrap(),
+                    //        0,
+                    //    );
+                    //} else {
+                    //    ui.checkbox(master_mute, "Mute");
+                    //    sound_coordinator::SoundCoordinator::set_master_volume(
+                    //        self.tx_sc.as_ref().unwrap(),
+                    //        *master_volume,
+                    //    );
+                    //}
+                //});
             });
 
             use egui_extras::{Size, TableBuilder};
