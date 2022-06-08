@@ -20,7 +20,7 @@ impl Default for TTElement {
 
 impl TTElement {
     pub fn time(&self) -> u32 {
-        (Self::join(self.h, self.m)).into()
+        Self::join(self.h, self.m)
     }
 
     pub fn join(h: u32, m: u32) -> u32 {
@@ -285,7 +285,7 @@ impl Scheduler {
     }
 
     fn edit(tx_s: &std::sync::mpsc::Sender<SMessage>, row: &TTElement) {
-        tx_s.send(SMessage::Overwrite(row.clone())).unwrap();
+        tx_s.send(SMessage::Overwrite(*row)).unwrap();
     }
 }
 
@@ -324,7 +324,6 @@ impl PresetVoice {
     }
 }
 
-use rodio;
 use rodio::source::{SineWave, Source};
 use rodio::{OutputStream, OutputStreamHandle, Sink};
 use std::time::Duration;
@@ -369,7 +368,7 @@ impl SoundCoordinator {
             let (s, sh) = OutputStream::try_default().unwrap();
 
             loop {
-                let message = rx.recv().unwrap_or(SCMessage::default());
+                let message = rx.recv().unwrap_or_default();
                 if let Some(playinfo) = message.play_info {
                     let sink = Self::_play(&playinfo.sources, &sh);
                     sink.set_volume(Self::to_volume_magnification(
@@ -379,7 +378,7 @@ impl SoundCoordinator {
 
                     let exsink: ExSink = ExSink {
                         volume: playinfo.volume,
-                        sink: sink,
+                        sink,
                     };
                     exsinks.push(exsink);
                 } else {
@@ -440,11 +439,11 @@ impl SoundCoordinator {
             SoundSource::Voice(voice_index),
         ];
         let play_info = PlayInfo {
-            volume: volume,
-            sources: sources,
+            volume,
+            sources,
         };
 
-        Self::play(&tx, play_info);
+        Self::play(tx, play_info);
     }
 
     pub fn set_master_volume(tx: &std::sync::mpsc::Sender<SCMessage>, mv: u32) {
@@ -504,7 +503,7 @@ impl SoundCoordinator {
 }
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Default)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct TemplateApp {
     settings: Settings,
@@ -514,17 +513,6 @@ pub struct TemplateApp {
     tx_sc: Option<std::sync::mpsc::Sender<SCMessage>>,
     #[serde(skip)]
     tx_s: Option<std::sync::mpsc::Sender<SMessage>>,
-}
-
-impl Default for TemplateApp {
-    fn default() -> Self {
-        Self {
-            settings: Settings::default(),
-            time_table_diff_base: Vec::new(),
-            tx_sc: None,
-            tx_s: None,
-        }
-    }
 }
 
 impl TemplateApp {
@@ -555,7 +543,7 @@ impl TemplateApp {
         }
 
         for row in &app.settings.time_table {
-            app.time_table_diff_base.push(row.clone());
+            app.time_table_diff_base.push(*row);
             Scheduler::edit(&tx_s_for_init, row);
         }
 
