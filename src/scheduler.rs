@@ -75,7 +75,9 @@ impl Scheduler {
                     let sub = (h + m) - (now_h + now_m);
 
                     if sub.num_minutes() == 0 {
-                        SoundCoordinator::play_full_set_list(&tx_sc, index, 100);
+                        if next_play.unwrap().active {
+                            SoundCoordinator::play_full_set_list(&tx_sc, index, 100);
+                        }
                         next_play = None;
                     }
                 }
