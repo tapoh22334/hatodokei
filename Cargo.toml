@@ -2,7 +2,7 @@
 name = "hatodokei"
 default-run = "hatodokei_bin"
 version = "0.1.0"
-authors = ["Hajime Iwase <iwase22334@gmail.com>"]
+authors = ["iwase22334 <iwase22334@gmail.com>"]
 edition = "2021"
 rust-version = "1.60"
 
@@ -21,25 +21,23 @@ egui = "0.18.0"
 egui_extras = "0.18.0"
 eframe = { version = "0.18.0", features = ["persistence"] }
 serde = { version = "1", features = ["derive"] } # You only need this if you want app persistence
+image = "0.24.2"
 
 rodio = "0.15.0"
 
 emojis = "0.4.0"
 chrono = "0.4"
 
+# for icon
+[target.'cfg(windows)'.build-dependencies]
+windres = "0.2.2"
+
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tracing-subscriber = "0.3"
 
-# web:
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-console_error_panic_hook = "0.1.6"
-tracing-wasm = "0.2"
-
-
 [profile.release]
-#opt-level = 2 # fast and small wasm
-debug = 1
+opt-level = 2 # fast and small wasm
 
 
 [patch.crates-io]
