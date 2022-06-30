@@ -4,35 +4,38 @@
 
 ## 機能
 
-### 実装済み
  - [x] 時報
  - [x] 特定の時報をミュート
  - [x] 全体の音量調整
+ - [x] タスクトレイ在中
+ - [ ] 設定の保存
+ - [ ] 時間の追加・編集
+ - [ ] 音声ファイルの読み込み
 
-### 追加予定
- - [] 時間の編集
- - [] 音声ファイルの読み込み
- - [] タスクトレイ化
+## 動作確認環境
 
+ - Windows 10
 
-### ビルド方法
+## ビルド
 
-Make sure you are using the latest version of stable rust by running `rustup update`.
+### デバッグ
 
-`cargo run --release`
+```
+cargo tauri dev
+```
 
-On Linux you need to first run:
+### リリース
 
-`sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libspeechd-dev libxkbcommon-dev libssl-dev`
+```
+cargo tauri build
+```
 
-On Fedora Rawhide you need to run:
+## Lisence
 
-`dnf install clang clang-devel clang-tools-extra speech-dispatcher-devel libxkbcommon-devel pkg-config openssl-devel libxcb-devel`
+ソースコード:
+MIT
 
-
-## 音声に関して
-
+音声データ:
 フリー素材キャラクター「つくよみちゃん」（© Rei Yumesaki）を使用しています。
 https://tyc.rei-yumesaki.net/
-
 ■音声合成ソフト：つくよみちゃん@COEIROINK

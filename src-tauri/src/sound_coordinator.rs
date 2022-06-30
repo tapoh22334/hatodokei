@@ -1,5 +1,5 @@
-use crate::message::{PlayInfo, SCMessage, SoundSource};
 use crate::preset_voice;
+use crate::println;
 
 use rodio::source::{SineWave, Source};
 use rodio::{OutputStream, OutputStreamHandle, Sink};
@@ -10,12 +10,34 @@ pub struct ExSink {
     sink: Sink,
 }
 
+pub enum SoundSource {
+    Popopopin(),
+    Silence(f32),
+    Voice(u32),
+    // Not impremented.
+    // this element is reserved for playing user prepared voice data.
+    #[allow(unused)]
+    Path(String),
+}
+
+pub struct PlayInfo {
+    pub volume: u32,
+    pub sources: Vec<SoundSource>,
+}
+
+#[derive(Default)]
+pub struct SCMessage {
+    pub master_volume: Option<u32>,
+    pub master_mute: Option<bool>,
+    pub play_info: Option<PlayInfo>,
+}
+
 pub struct SoundCoordinator {}
 
 impl SoundCoordinator {
-    pub fn activate() -> std::sync::mpsc::Sender<SCMessage> {
+    pub fn activate() -> std::sync::mpsc::SyncSender<SCMessage> {
         use std::sync::mpsc;
-        let (tx, rx) = mpsc::channel::<SCMessage>();
+        let (tx, rx) = mpsc::sync_channel::<SCMessage>(1);
         let mut master_volume: u32 = 100;
 
         std::thread::spawn(move || {
@@ -25,6 +47,8 @@ impl SoundCoordinator {
 
             loop {
                 let message = rx.recv().unwrap_or_default();
+
+                // Received play request
                 if let Some(playinfo) = message.play_info {
                     let sink = Self::_play(&playinfo.sources, &sh);
                     sink.set_volume(Self::to_volume_magnification(
@@ -37,11 +61,29 @@ impl SoundCoordinator {
                         sink,
                     };
                     exsinks.push(exsink);
-                } else {
+
+                    println!("SoundCoordinator: playinfo accepted");
+                }
+
+                // Received volume change request
+                if let Some(vol) = message.master_volume {
+                    master_volume = vol;
                     for ExSink { volume, sink } in &exsinks {
-                        master_volume = message.master_volume.unwrap();
                         sink.set_volume(Self::to_volume_magnification(master_volume, *volume));
                     }
+
+                    println!("SoundCoordinator: update master volume {:?}", master_volume);
+                }
+
+                // Received mute request
+                if let Some(master_mute) = message.master_mute {
+                    let volume_mute = if master_mute {0} else {master_volume} ;
+
+                    for ExSink { volume, sink } in &exsinks {
+                        sink.set_volume(Self::to_volume_magnification(volume_mute, *volume));
+                    }
+
+                    println!("SoundCoordinator: update master volume {:?}", volume_mute);
                 }
 
                 while let Some(index) = exsinks
@@ -76,16 +118,17 @@ impl SoundCoordinator {
         sink
     }
 
-    pub fn play(tx: &std::sync::mpsc::Sender<SCMessage>, play_info: PlayInfo) {
+    pub fn play(tx: &std::sync::mpsc::SyncSender<SCMessage>, play_info: PlayInfo) {
         tx.send(SCMessage {
             master_volume: None,
+            master_mute: None,
             play_info: Some(play_info),
         })
         .unwrap();
     }
 
     pub fn play_full_set_list(
-        tx: &std::sync::mpsc::Sender<SCMessage>,
+        tx: &std::sync::mpsc::SyncSender<SCMessage>,
         voice_index: u32,
         volume: u32,
     ) {
@@ -97,11 +140,23 @@ impl SoundCoordinator {
         let play_info = PlayInfo { volume, sources };
 
         Self::play(tx, play_info);
+
+        println!("SoundCoordinator: played full set list {:?}", voice_index);
     }
 
-    pub fn set_master_volume(tx: &std::sync::mpsc::Sender<SCMessage>, mv: u32) {
+    pub fn set_master_volume(tx: &std::sync::mpsc::SyncSender<SCMessage>, mv: u32) {
         tx.send(SCMessage {
             master_volume: Some(mv),
+            master_mute: None,
+            play_info: None,
+        })
+        .unwrap();
+    }
+
+    pub fn set_master_mute(tx: &std::sync::mpsc::SyncSender<SCMessage>, mute: bool) {
+        tx.send(SCMessage {
+            master_volume: None,
+            master_mute: Some(mute),
             play_info: None,
         })
         .unwrap();
