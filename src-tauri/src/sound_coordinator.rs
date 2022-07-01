@@ -77,7 +77,7 @@ impl SoundCoordinator {
 
                 // Received mute request
                 if let Some(master_mute) = message.master_mute {
-                    let volume_mute = if master_mute {0} else {master_volume} ;
+                    let volume_mute = if master_mute { 0 } else { master_volume };
 
                     for ExSink { volume, sink } in &exsinks {
                         sink.set_volume(Self::to_volume_magnification(volume_mute, *volume));

@@ -1,10 +1,10 @@
-use crate::sound_coordinator::{SoundCoordinator, SCMessage};
-use crate::ttelement;
 use crate::println;
+use crate::sound_coordinator::{SCMessage, SoundCoordinator};
+use crate::ttelement;
 
-use chrono::Timelike;
 use chrono::DateTime;
 use chrono::Local;
+use chrono::Timelike;
 
 pub enum SMessage {
     Overwrite(ttelement::TTElement),
@@ -36,12 +36,13 @@ impl Scheduler {
                 println!("[next:{:?}]", next_play);
 
                 // Recv table change event
-                let rv = rx.recv_timeout(std::time::Duration::from_millis(sleep_milliseconds as u64));
+                let rv =
+                    rx.recv_timeout(std::time::Duration::from_millis(sleep_milliseconds as u64));
                 if let Ok(msg) = rv {
                     println!("recved OK");
                     table_changed = Self::process_message(&mut time_table, msg);
                     next_play = None;
-                } 
+                }
 
                 // Update target to play
                 if next_play.is_none() || table_changed {
@@ -49,9 +50,7 @@ impl Scheduler {
                 }
 
                 // Play sound if the time is come
-                if !next_play.is_none()
-                    && Self::sub_minute(next_play.unwrap().time, &now) == 0 {
-
+                if !next_play.is_none() && Self::sub_minute(next_play.unwrap().time, &now) == 0 {
                     if next_play.unwrap().active {
                         let index = next_play.unwrap().time / 100;
                         println!("playing index: {:?}", index);
@@ -106,17 +105,22 @@ impl Scheduler {
         return sub.num_minutes();
     }
 
-    fn get_next_play(time_table: &Vec<ttelement::TTElement>, now: &DateTime<Local>) -> Option<ttelement::TTElement> {
-        if time_table.is_empty() { return None; }
+    fn get_next_play(
+        time_table: &Vec<ttelement::TTElement>,
+        now: &DateTime<Local>,
+    ) -> Option<ttelement::TTElement> {
+        if time_table.is_empty() {
+            return None;
+        }
 
         let target = *now + chrono::Duration::minutes(1);
         return Some(
             *time_table
-            .iter()
-            .min_by_key(|x| {
-                ttelement::TTElement::sub(x.time, target.hour() * 100 + target.minute())
-            })
-            .unwrap(),
-            );
+                .iter()
+                .min_by_key(|x| {
+                    ttelement::TTElement::sub(x.time, target.hour() * 100 + target.minute())
+                })
+                .unwrap(),
+        );
     }
 }
