@@ -1,6 +1,6 @@
 # 鳩時計時報
 
-シンプルな時報アプリ
+シンプルな時報アプリ(ダウンロード: https://github.com/iwase22334/hatodokei/releases)
 
 ![キャプチャ1](./capture/Capture1.png)
 ![キャプチャ2](./capture/Capture2.png)
@@ -19,16 +19,24 @@
 
  - Windows 10
 
-## ビルド
+## 開発
 
-### デバッグ
+開発言語は、Rust(バックエンド) + React/ts(フロントエンド)。
+GUIおよび音声再生に以下のライブラリを使用。
 
+Third party libraries
+
+ - Tauri: https://github.com/tauri-apps/tauri
+ - rodio: https://github.com/RustAudio/rodio
+
+### Build
+
+- debug
 ```
 cargo tauri dev
 ```
 
-### リリース
-
+- release
 ```
 cargo tauri build
 ```
