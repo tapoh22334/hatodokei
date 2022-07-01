@@ -2,6 +2,9 @@
 
 シンプルな時報アプリ
 
+![キャプチャ1](./capture/Capture1.png)
+![キャプチャ2](./capture/Capture2.png)
+
 ## 機能
 
  - [x] 時報
