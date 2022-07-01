@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use tauri::{CustomMenuItem, WindowEvent, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
 
 mod debug;
 mod preset_voice;
@@ -74,8 +74,11 @@ fn main() {
                 let window = app.get_window("main").unwrap();
                 if window.is_visible().unwrap() {
                     window.hide().unwrap();
+                    window.minimize().unwrap();
                 } else {
                     window.show().unwrap();
+                    window.unminimize().unwrap();
+                    window.set_focus().unwrap();
                 }
             }
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
@@ -84,6 +87,15 @@ fn main() {
                 }
                 _ => {}
             },
+            _ => {}
+        })
+        .on_window_event(|event| match event.event() {
+            WindowEvent::Focused(focus) => {
+                if !focus {
+                    event.window().hide().unwrap();
+                    println!("main: UnFocused");
+                }
+            }
             _ => {}
         })
         .system_tray(system_tray)
