@@ -1,6 +1,8 @@
 # 鳩時計時報
 
-シンプルな時報アプリ(ダウンロード: https://github.com/iwase22334/hatodokei/releases)
+シンプルな時報アプリ 
+
+ - [ダウンロード](https://github.com/iwase22334/hatodokei/releases)
 
 ![キャプチャ1](https://raw.githubusercontent.com/iwase22334/hatodokei/main/capture/Capture1.png)
 ![キャプチャ2](https://raw.githubusercontent.com/iwase22334/hatodokei/main/capture/Capture2.png)
