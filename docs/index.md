@@ -1,37 +1,52 @@
-## Welcome to GitHub Pages
+# 鳩時計時報
 
-You can use the [editor on GitHub](https://github.com/iwase22334/hatodokei/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+シンプルな時報アプリ(ダウンロード: https://github.com/iwase22334/hatodokei/releases)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+![キャプチャ1](./capture/Capture1.png)
+![キャプチャ2](./capture/Capture2.png)
 
-### Markdown
+## 機能
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+ - [x] 時報
+ - [x] 特定の時報をミュート
+ - [x] 全体の音量調整
+ - [x] タスクトレイ在中
+ - [ ] 設定の保存
+ - [ ] 時間の追加・編集
+ - [ ] 音声ファイルの読み込み
 
-```markdown
-Syntax highlighted code block
+## 動作確認環境
 
-# Header 1
-## Header 2
-### Header 3
+ - Windows 10
 
-- Bulleted
-- List
+## 開発
 
-1. Numbered
-2. List
+開発言語は、Rust(バックエンド) + React/ts(フロントエンド)。
+GUIおよび音声再生に以下のライブラリを使用。
 
-**Bold** and _Italic_ and `Code` text
+Third party libraries
 
-[Link](url) and ![Image](src)
+ - Tauri: https://github.com/tauri-apps/tauri
+ - rodio: https://github.com/RustAudio/rodio
+
+### Build
+
+- debug
+```
+cargo tauri dev
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+- release
+```
+cargo tauri build
+```
 
-### Jekyll Themes
+## Lisence
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/iwase22334/hatodokei/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+ソースコード:
+MIT
 
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+音声データ:
+フリー素材キャラクター「つくよみちゃん」（© Rei Yumesaki）を使用しています。
+https://tyc.rei-yumesaki.net/
+■音声合成ソフト：つくよみちゃん@COEIROINK
