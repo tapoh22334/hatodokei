@@ -1,6 +1,6 @@
 # 鳩時計時報
 
-シンプルな時報アプリ 
+シンプルな時報アプリ。一時間ごとに時間を読み上げます。
 
  - [ダウンロード](https://github.com/iwase22334/hatodokei/releases)
 
@@ -15,7 +15,7 @@
  - [x] タスクトレイ在中
  - [ ] 設定の保存
  - [ ] 時間の追加・編集
- - [ ] 音声ファイルの読み込み
+
 
 ## 動作確認環境
 
@@ -23,7 +23,8 @@
 
 ## 開発
 
-開発言語は、Rust(バックエンド) + React/ts(フロントエンド)。
+開発言語: Rust + React
+
 GUIおよび音声再生に以下のライブラリを使用。
 
 Third party libraries
@@ -46,9 +47,11 @@ cargo tauri build
 ## Lisence
 
 ソースコード:
-MIT
+
+ - MIT
 
 音声データ:
-フリー素材キャラクター「つくよみちゃん」（© Rei Yumesaki）を使用しています。
-https://tyc.rei-yumesaki.net/
-■音声合成ソフト：つくよみちゃん@COEIROINK
+
+ - フリー素材キャラクター「つくよみちゃん」（© Rei Yumesaki）を使用しています。
+ - ■音声合成ソフト：つくよみちゃん@COEIROINK
+ - https://tyc.rei-yumesaki.net/
