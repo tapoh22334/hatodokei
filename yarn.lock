@@ -887,6 +887,11 @@
     "picocolors" "^1.0.0"
     "source-map-js" "^1.0.2"
 
+"prettier@^2.7.1":
+  "integrity" "sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g=="
+  "resolved" "https://registry.npmjs.org/prettier/-/prettier-2.7.1.tgz"
+  "version" "2.7.1"
+
 "prop-types@^15.6.2", "prop-types@^15.8.1":
   "integrity" "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="
   "resolved" "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
