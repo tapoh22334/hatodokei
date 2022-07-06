@@ -12,7 +12,6 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    working-directory: ./src-tauri
     steps:
       - run: sudo apt-get install libasound2-dev
       - uses: actions/checkout@v2
@@ -22,6 +21,7 @@ jobs:
           toolchain: stable
           override: true
       - uses: actions-rs/cargo@v1
+        working-directory: ./src-tauri
         with:
           command: check
           args: --all-features
@@ -47,7 +47,6 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    working-directory: ./src-tauri
     steps:
       - run: sudo apt-get install libasound2-dev
       - uses: actions/checkout@v2
@@ -58,6 +57,7 @@ jobs:
           override: true
       - run: sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libspeechd-dev libxkbcommon-dev libssl-dev
       - uses: actions-rs/cargo@v1
+        working-directory: ./src-tauri
         with:
           command: test
           args: --lib
@@ -75,6 +75,7 @@ jobs:
           override: true
       - run: rustup component add rustfmt
       - uses: actions-rs/cargo@v1
+        working-directory: ./src-tauri
         with:
           command: fmt
           args: --all -- --check
@@ -93,6 +94,7 @@ jobs:
           override: true
       - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
+        working-directory: ./src-tauri
         with:
           command: clippy
           args: -- -D warnings
