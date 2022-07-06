@@ -45,9 +45,6 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src-tauri
     steps:
       - run: sudo apt-get install libasound2-dev
       - uses: actions/checkout@v2
@@ -58,16 +55,12 @@ jobs:
           override: true
       - run: sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libspeechd-dev libxkbcommon-dev libssl-dev
       - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --lib
+      - run: cargo test --lib
+        working-directory: src-tauri
 
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src-tauri
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -77,16 +70,12 @@ jobs:
           override: true
       - run: rustup component add rustfmt
       - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - run: cargo fmt --all -- --check
+        working-directory: src-tauri
 
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src-tauri
     steps:
       - run: sudo apt-get install libasound2-dev
       - uses: actions/checkout@v2
@@ -97,6 +86,5 @@ jobs:
           override: true
       - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
+      - run: cargo clippy -- -D warnings
+        working-directory: src-tauri
