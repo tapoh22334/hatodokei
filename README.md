@@ -36,6 +36,7 @@ Third party libraries
 
 ```
 cargo install tauri-cli --version "^1.0.0"
+yarn add -D @tauri-apps/cli
 ```
 
 ### Build
