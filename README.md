@@ -32,6 +32,12 @@ Third party libraries
  - Tauri: https://github.com/tauri-apps/tauri
  - rodio: https://github.com/RustAudio/rodio
 
+### 環境構築
+
+```
+cargo install tauri-cli --version "^1.0.0"
+```
+
 ### Build
 
 - debug
