@@ -72,7 +72,6 @@ jobs:
     defaults:
       run:
         working-directory: ./src-tauri
-    working-directory: ./src-tauri
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -92,7 +91,6 @@ jobs:
     defaults:
       run:
         working-directory: ./src-tauri
-    working-directory: ./src-tauri
     steps:
       - run: sudo apt-get install libasound2-dev
       - uses: actions/checkout@v2
