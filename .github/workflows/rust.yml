@@ -12,9 +12,6 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src-tauri
     steps:
       - run: sudo apt-get install libasound2-dev
       - uses: actions/checkout@v2
@@ -24,6 +21,9 @@ jobs:
           toolchain: stable
           override: true
       - uses: actions-rs/cargo@v1
+        defaults:
+          run:
+            working-directory: src-tauri
         with:
           command: check
           args: --all-features
