@@ -1,9 +1,4 @@
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
-)]
-
-use tauri::{CustomMenuItem, WindowEvent, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, WindowEvent};
 
 mod debug;
 mod preset_voice;
@@ -15,11 +10,6 @@ mod ttelement;
 use crate::scheduler::{SMessage, Scheduler};
 use crate::setting::Settings;
 use crate::sound_coordinator::{SCMessage, SoundCoordinator};
-
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello {} !", name)
-}
 
 #[tauri::command]
 fn get_settings(settings: tauri::State<Settings>) -> Settings {
@@ -72,13 +62,12 @@ fn main() {
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::LeftClick { .. } => {
                 let window = app.get_window("main").unwrap();
-                if window.is_visible().unwrap() {
-                    window.hide().unwrap();
-                    window.minimize().unwrap();
-                } else {
+                if !window.is_visible().unwrap() {
                     window.show().unwrap();
                     window.unminimize().unwrap();
                     window.set_focus().unwrap();
+                } else {
+                    window.minimize().unwrap();
                 }
             }
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
@@ -90,10 +79,9 @@ fn main() {
             _ => {}
         })
         .on_window_event(|event| match event.event() {
-            WindowEvent::Focused(focus) => {
-                if !focus {
+            WindowEvent::Resized(size) => {
+                if size.width == 0 && size.height == 0 {
                     event.window().hide().unwrap();
-                    println!("main: UnFocused");
                 }
             }
             _ => {}
@@ -103,7 +91,6 @@ fn main() {
         .manage(tx_scheduler)
         .manage(tx_sound_coordinator)
         .invoke_handler(tauri::generate_handler![
-            greet,
             get_settings,
             set_master_volume,
             set_master_mute,
