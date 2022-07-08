@@ -20,6 +20,7 @@
 ## 動作確認環境
 
  - Windows 10
+ - Mac
 
 ## 開発
 
@@ -36,6 +37,7 @@ Third party libraries
 
 ```
 cargo install tauri-cli --version "^1.0.0"
+yarn add -D @tauri-apps/cli
 ```
 
 ### Build
