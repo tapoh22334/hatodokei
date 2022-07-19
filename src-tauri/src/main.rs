@@ -32,16 +32,16 @@ fn set_master_mute(mute: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMe
 }
 
 #[tauri::command]
-fn play(index: u32, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
-    SoundCoordinator::play_full_set_list(&tx, index, 100);
-}
-
-#[tauri::command]
 fn set_table_row(
     row: ttelement::TTElement,
     tx: tauri::State<std::sync::mpsc::SyncSender<SMessage>>,
 ) {
     Scheduler::edit(&tx, &row);
+}
+
+#[tauri::command]
+fn play(index: u32, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
+    SoundCoordinator::play_full_set_list(&tx, index, 100);
 }
 
 fn main() {
@@ -52,9 +52,6 @@ fn main() {
     // Load settings
     // TODO: implement save, load feature
     let settings = setting::Settings::default();
-    for row in &settings.time_table {
-        Scheduler::edit(&tx_scheduler, row);
-    }
 
     // System tray icon
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
@@ -99,8 +96,8 @@ fn main() {
             get_settings,
             set_master_volume,
             set_master_mute,
+            set_table_row,
             play,
-            set_table_row
         ])
         .run(context)
         .expect("error while running tauri application");

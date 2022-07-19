@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
 import "./App.css";
+import { defaultSettings, TTElement, Settings} from "./defaultSetting";
 
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
@@ -27,43 +28,80 @@ import IconButton from "@mui/material/IconButton";
 import CommentIcon from "@mui/icons-material/Comment";
 import Divider from "@mui/material/Divider";
 
-export type TTElement = {
-  time: number;
-  active: boolean;
-};
-
-export type Settings = {
-  master_volume: number;
-  master_mute: boolean;
-  time_table: TTElement[];
-};
-
 function App() {
   const [count, setCount] = useState(0);
   const [masterVolume, setMasterVolume] = useState(60);
   const [masterMute, setMasterMute] = useState(false);
-  const [disabled, setDisabled] = useState(false);
   const [timeTable, setTimeTable] = useState(Array<TTElement>);
 
+  const getMasterVolumeStorage = () => {
+    const json = localStorage.getItem("hatodokeiMasterVolume")
+    return json === null ? null : JSON.parse(json);
+  };
+
+  const getMasterMuteStorage = () => {
+    const json = localStorage.getItem("hatodokeiMasterMute")
+    return json === null ? null : JSON.parse(json);
+  };
+
+  const getTimeTableStorage = () => {
+    const json = localStorage.getItem("hatodokeiTimeTable")
+    return json === null ? null : JSON.parse(json);
+  };
+
+  const setMasterVolumeStorage = (masterVolume: number) => {
+    localStorage.setItem("hatodokeiMasterVolume", JSON.stringify(masterVolume));
+  };
+
+  const setMasterMuteStorage = (masterMute: boolean) => {
+    localStorage.setItem("hatodokeiMasterMute", JSON.stringify(masterMute));
+  };
+
+  const setTimeTableStorage = (timeTable: TTElement[]) => {
+    localStorage.setItem("hatodokeiTimeTable", JSON.stringify(timeTable));
+  };
+
   useEffect(() => {
-    invoke("get_settings").then((initMessage: any) => {
-      setMasterVolume(initMessage.master_volume);
-      setMasterMute(initMessage.master_mute);
+    // Get system default setting from backend.
+    let initSettings: Settings = defaultSettings;
 
-      let timeTableChild = [...timeTable];
-      for (const i in initMessage.time_table) {
-        timeTableChild.push(initMessage.time_table[i]);
-      }
-      setTimeTable(timeTableChild);
+    // If any value in local storage, over write default.
+    const savedMasterVolume = getMasterVolumeStorage();
+    if (savedMasterVolume !== null) {
+      initSettings.master_volume = savedMasterVolume;
+    }
 
-      console.log(timeTableChild);
-      console.log(initMessage.time_table);
-    });
+    const savedMasterMute = getMasterMuteStorage();
+    if (savedMasterMute !== null) {
+      initSettings.master_mute = savedMasterMute;
+    }
+
+    const savedTimeTable = getTimeTableStorage();
+    if (savedTimeTable !== null) {
+      initSettings.time_table = savedTimeTable;
+    }
+
+    // Refrect settings to backend and frontend
+    setMasterVolume(initSettings.master_volume);
+    invoke("set_master_volume", { volume: initSettings.master_volume});
+
+    setMasterMute(initSettings.master_mute);
+    invoke("set_master_mute", { mute: initSettings.master_mute });
+
+    let timeTableChild = [...timeTable];
+    for (const i in initSettings.time_table) {
+        timeTableChild.push(initSettings.time_table[i]);
+        invoke("set_table_row", { row: { time: initSettings.time_table[i].time, active: initSettings.time_table[i].active }, });
+        console.log(initSettings.time_table[i]);
+    }
+    setTimeTable(timeTableChild);
+
   }, []);
 
   const handleVolumeChange = (event: Event, value: number | number[]) => {
     invoke("set_master_volume", { volume: value });
     setMasterVolume(value as number);
+    setMasterVolumeStorage(value as number);
 
     console.log("set master volume: %d", value);
   };
@@ -72,7 +110,8 @@ function App() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     invoke("set_master_mute", { mute: !event.target.checked });
-    setDisabled(!event.target.checked);
+    setMasterMute(!event.target.checked);
+    setMasterMuteStorage(!event.target.checked);
 
     console.log(!event.target.checked);
   };
@@ -97,6 +136,7 @@ function App() {
     }
 
     setTimeTable(timeTableChild);
+    setTimeTableStorage(timeTableChild);
   };
 
   const toTimeString = (hhmm: number) => {
@@ -128,7 +168,7 @@ function App() {
             aria-label={`mute-child-switch-${props.time}`}
             checked={props.active}
             onChange={handleMuteChildChange.bind(null, props.time)}
-            disabled={disabled}
+            disabled={masterMute}
           />
         </Stack>
       </Card>
@@ -159,7 +199,7 @@ function App() {
                 <Switch
                   color="default"
                   aria-label="mute_master"
-                  checked={!disabled}
+                  checked={!masterMute}
                   onChange={handleMuteMasterChange}
                 />
               </Stack>
