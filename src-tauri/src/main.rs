@@ -13,13 +13,7 @@ mod sound_coordinator;
 mod ttelement;
 
 use crate::scheduler::{SMessage, Scheduler};
-use crate::setting::Settings;
 use crate::sound_coordinator::{SCMessage, SoundCoordinator};
-
-#[tauri::command]
-fn get_settings(settings: tauri::State<Settings>) -> Settings {
-    settings.clone().inner().to_owned()
-}
 
 #[tauri::command]
 fn set_master_volume(volume: u32, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
@@ -91,7 +85,6 @@ fn main() {
         .manage(tx_scheduler)
         .manage(tx_sound_coordinator)
         .invoke_handler(tauri::generate_handler![
-            get_settings,
             set_master_volume,
             set_master_mute,
             set_table_row,
