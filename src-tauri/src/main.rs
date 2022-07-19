@@ -72,21 +72,15 @@ fn main() {
                     window.minimize().unwrap();
                 }
             }
-            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "quit" => {
+            SystemTrayEvent::MenuItemClick { id, .. } => if id.as_str() == "quit" {
                     std::process::exit(0);
-                }
-                _ => {}
             },
             _ => {}
         })
-        .on_window_event(|event| match event.event() {
-            WindowEvent::Resized(size) => {
-                if size.width == 0 && size.height == 0 {
-                    event.window().hide().unwrap();
-                }
+        .on_window_event(|event| if let WindowEvent::Resized(size) = event.event() {
+            if size.width == 0 && size.height == 0 {
+                event.window().hide().unwrap();
             }
-            _ => {}
         })
         .system_tray(system_tray)
         .manage(settings)

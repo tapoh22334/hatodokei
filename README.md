@@ -52,6 +52,14 @@ cargo tauri dev
 cargo tauri build
 ```
 
+- lint, formatt
+
+```
+npx prettier --write src/*.ts src/*.tsx
+(cd src-tauri; cargo fmt)
+(cd src-tauri; cargo clippy -- -D warnings)
+```
+
 ## Lisence
 
 ソースコード:

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
 import "./App.css";
-import { defaultSettings, TTElement, Settings} from "./defaultSetting";
+import { defaultSettings, TTElement, Settings } from "./defaultSetting";
 
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
@@ -35,17 +35,17 @@ function App() {
   const [timeTable, setTimeTable] = useState(Array<TTElement>);
 
   const getMasterVolumeStorage = () => {
-    const json = localStorage.getItem("hatodokeiMasterVolume")
+    const json = localStorage.getItem("hatodokeiMasterVolume");
     return json === null ? null : JSON.parse(json);
   };
 
   const getMasterMuteStorage = () => {
-    const json = localStorage.getItem("hatodokeiMasterMute")
+    const json = localStorage.getItem("hatodokeiMasterMute");
     return json === null ? null : JSON.parse(json);
   };
 
   const getTimeTableStorage = () => {
-    const json = localStorage.getItem("hatodokeiTimeTable")
+    const json = localStorage.getItem("hatodokeiTimeTable");
     return json === null ? null : JSON.parse(json);
   };
 
@@ -83,19 +83,23 @@ function App() {
 
     // Refrect settings to backend and frontend
     setMasterVolume(initSettings.master_volume);
-    invoke("set_master_volume", { volume: initSettings.master_volume});
+    invoke("set_master_volume", { volume: initSettings.master_volume });
 
     setMasterMute(initSettings.master_mute);
     invoke("set_master_mute", { mute: initSettings.master_mute });
 
     let timeTableChild = [...timeTable];
     for (const i in initSettings.time_table) {
-        timeTableChild.push(initSettings.time_table[i]);
-        invoke("set_table_row", { row: { time: initSettings.time_table[i].time, active: initSettings.time_table[i].active }, });
-        console.log(initSettings.time_table[i]);
+      timeTableChild.push(initSettings.time_table[i]);
+      invoke("set_table_row", {
+        row: {
+          time: initSettings.time_table[i].time,
+          active: initSettings.time_table[i].active,
+        },
+      });
+      console.log(initSettings.time_table[i]);
     }
     setTimeTable(timeTableChild);
-
   }, []);
 
   const handleVolumeChange = (event: Event, value: number | number[]) => {

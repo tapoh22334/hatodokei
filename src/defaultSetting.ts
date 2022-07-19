@@ -1,13 +1,13 @@
 export interface TTElement {
   time: number;
   active: boolean;
-};
+}
 
 export interface Settings {
   master_volume: number;
   master_mute: boolean;
   time_table: TTElement[];
-};
+}
 
 export const defaultSettings: Settings = {
   master_volume: 80,
@@ -37,5 +37,5 @@ export const defaultSettings: Settings = {
     { time: 2100, active: true },
     { time: 2200, active: true },
     { time: 2300, active: true },
-    ]
+  ],
 };
