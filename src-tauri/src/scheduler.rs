@@ -50,7 +50,7 @@ impl Scheduler {
                 }
 
                 // Play sound if the time is come
-                if !next_play.is_none() && Self::sub_minute(next_play.unwrap().time, &now) == 0 {
+                if next_play.is_some() && Self::sub_minute(next_play.unwrap().time, &now) == 0 {
                     if next_play.unwrap().active {
                         let index = next_play.unwrap().time / 100;
                         println!("playing index: {:?}", index);
@@ -61,7 +61,7 @@ impl Scheduler {
                     next_play = None;
                 }
 
-                println!("");
+                println!();
             }
         });
 
@@ -92,7 +92,7 @@ impl Scheduler {
         time_table.sort_by(|a, b| (a.time).partial_cmp(&b.time).unwrap());
         println!("{:?}", time_table);
 
-        return true;
+        true
     }
 
     fn sub_minute(time: u32, now: &DateTime<Local>) -> i64 {
@@ -102,7 +102,7 @@ impl Scheduler {
         let now_m = chrono::Duration::minutes(now.minute().into());
 
         let sub = (h + m) - (now_h + now_m);
-        return sub.num_minutes();
+        sub.num_minutes()
     }
 
     fn get_next_play(
