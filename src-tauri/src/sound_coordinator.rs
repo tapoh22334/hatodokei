@@ -42,25 +42,38 @@ impl SoundCoordinator {
 
         std::thread::spawn(move || {
             let mut exsinks = Vec::<ExSink>::default();
-            #[allow(unused)]
-            let (s, sh) = OutputStream::try_default().unwrap();
+            let (mut _output_stream, mut output_stream_handle) = OutputStream::try_default().unwrap();
 
             loop {
                 let message = rx.recv().unwrap_or_default();
 
+                // Cleanup playback list
+                while let Some(index) = exsinks
+                    .iter()
+                    .position(|ExSink { volume: _, sink }| sink.empty())
+                {
+                    exsinks.remove(index);
+                    println!("SoundCoordinator: Remove empty sink {:?}", index);
+                }
+
                 // Received play request
                 if let Some(playinfo) = message.play_info {
-                    let sink = Self::_play(&playinfo.sources, &sh);
+                    if exsinks.is_empty() {
+                        // output_stream_handle won't work when _output_stream is dropped.
+                        println!("SoundCoordinator: Opened new output stream");
+                        (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap()
+                    }
+
+                    let sink = Self::_play(&playinfo.sources, &output_stream_handle);
                     sink.set_volume(Self::to_volume_magnification(
                         master_volume,
                         playinfo.volume,
                     ));
 
-                    let exsink: ExSink = ExSink {
+                    exsinks.push(ExSink {
                         volume: playinfo.volume,
                         sink,
-                    };
-                    exsinks.push(exsink);
+                    });
 
                     println!("SoundCoordinator: playinfo accepted");
                 }
@@ -84,13 +97,6 @@ impl SoundCoordinator {
                     }
 
                     println!("SoundCoordinator: update master volume {:?}", volume_mute);
-                }
-
-                while let Some(index) = exsinks
-                    .iter()
-                    .position(|ExSink { volume: _, sink }| sink.empty())
-                {
-                    exsinks.remove(index);
                 }
             }
         });
