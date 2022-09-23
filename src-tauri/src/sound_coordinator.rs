@@ -61,7 +61,11 @@ impl SoundCoordinator {
                     if exsinks.is_empty() {
                         // output_stream_handle won't work when _output_stream is dropped.
                         println!("SoundCoordinator: Opened new output stream");
-                        (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap()
+                        (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap_or_else(
+                            |e| {
+                                println!("SoundCoordinator: Failed to open device {:?}", e);
+                                (_output_stream, output_stream_handle)
+                            });
                     }
 
                     let sink = Self::_play(&playinfo.sources, &output_stream_handle);

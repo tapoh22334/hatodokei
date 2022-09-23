@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, WindowEvent};
+use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, WindowEvent};
 
 mod debug;
 mod preset_voice;
@@ -48,8 +48,12 @@ fn main() {
     let settings = setting::Settings::default();
 
     // System tray icon
-    let quit = CustomMenuItem::new("quit".to_string(), "Quit");
-    let tray_menu = SystemTrayMenu::new().add_item(quit);
+    let quit = CustomMenuItem::new("Quit".to_string(), "Quit");
+    let about = CustomMenuItem::new("About".to_string(), "About");
+    let tray_menu = SystemTrayMenu::new()
+        .add_item(quit)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(about);
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     // Show main window
@@ -67,8 +71,15 @@ fn main() {
                 }
             }
             SystemTrayEvent::MenuItemClick { id, .. } => {
-                if id.as_str() == "quit" {
-                    std::process::exit(0);
+                match id.as_str() {
+                    "Quit" => {
+                        std::process::exit(0);
+                    }
+                    "About" => {
+                        let window = app.get_window("main").unwrap();
+                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.3.3");
+                    }
+                    _ => {}
                 }
             }
             _ => {}
