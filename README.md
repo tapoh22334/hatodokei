@@ -65,7 +65,9 @@ npx prettier --write src/*.ts src/*.tsx
 ### ソースコード
 
 本ソフトウェアはフリーソフトであり、ソースコードはMITライセンスで公開しています。 
-本ソフトウェアに含まれるOSSのライセンスは(https://github.com/iwase22334/hatodokei/blob/main/THIRD-PARTY-NOTICES.txt)を参照してください。
+本ソフトウェアに含まれるOSSのライセンスは
+ - https://github.com/iwase22334/hatodokei/blob/main/THIRD-PARTY-NOTICES.txt
+を参照してください。
 
 ### 音声データ
 
