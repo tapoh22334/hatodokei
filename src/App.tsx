@@ -172,7 +172,6 @@ function App() {
             aria-label={`mute-child-switch-${props.time}`}
             checked={props.active}
             onChange={handleMuteChildChange.bind(null, props.time)}
-            disabled={masterMute}
           />
         </Stack>
       </Card>
@@ -182,37 +181,21 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <AppBar color="primary">
+        <AppBar>
           <Toolbar>
-            <Box sx={{ width: 220 }} alignItems="center" position="sticky">
-              <Stack
-                spacing={0}
-                direction="row"
-                sx={{ my: 0 }}
-                alignItems="center"
-                justifyContent="center"
-              >
-                <VolumeDown />
-                <Slider
-                  sx={{ color: "#fff" }}
-                  aria-label="MasterVolume"
-                  value={masterVolume}
-                  onChange={handleVolumeChange}
-                />
-                <VolumeUp />
-                <Switch
-                  color="default"
-                  aria-label="mute_master"
-                  checked={!masterMute}
-                  onChange={handleMuteMasterChange}
-                />
-              </Stack>
-            </Box>
+            <VolumeDown />
+            <Slider
+            sx={{ color: "#fff" }}
+            aria-label="MasterVolume"
+            value={masterVolume}
+            onChange={handleVolumeChange}
+            />
+            <VolumeUp />
           </Toolbar>
         </AppBar>
 
         <Stack
-          sx={{ mt: 8 }}
+          sx={{ mt: 8 , mb: 2 }}
           spacing={0.3}
           alignItems="center"
           justifyContent="center"
