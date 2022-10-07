@@ -39,3 +39,30 @@ export const defaultSettings: Settings = {
     { time: 2300, active: true },
   ],
 };
+
+export const getMasterVolumeStorage = () => {
+    const json = localStorage.getItem("hatodokeiMasterVolume");
+    return json === null ? null : JSON.parse(json);
+  };
+
+export const getMasterMuteStorage = () => {
+    const json = localStorage.getItem("hatodokeiMasterMute");
+    return json === null ? null : JSON.parse(json);
+  };
+
+export const getTimeTableStorage = () => {
+    const json = localStorage.getItem("hatodokeiTimeTable");
+    return json === null ? null : JSON.parse(json);
+  };
+
+export const setMasterVolumeStorage = (masterVolume: number) => {
+    localStorage.setItem("hatodokeiMasterVolume", JSON.stringify(masterVolume));
+  };
+
+export const setMasterMuteStorage = (masterMute: boolean) => {
+    localStorage.setItem("hatodokeiMasterMute", JSON.stringify(masterMute));
+  };
+
+export const setTimeTableStorage = (timeTable: TTElement[]) => {
+    localStorage.setItem("hatodokeiTimeTable", JSON.stringify(timeTable));
+  };
