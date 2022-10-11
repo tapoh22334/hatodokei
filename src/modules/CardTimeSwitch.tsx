@@ -24,9 +24,12 @@ const handlePlayClick = (time: number) => {
     console.log("play clicked %d", (time / 100) as number);
 };
 
-export const CardTimeSwitch: React.VFC<TTElement> = (props) => {
-    const [time, setTime] = React.useState(props.time);
-    const [active, setActive] = React.useState(props.active);
+export type CardProps = {
+    row: TTElement;
+}
+export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
+    const [time, setTime] = React.useState(props.row.time);
+    const [active, setActive] = React.useState(props.row.active);
 
     React.useEffect(() => {
         invoke("set_table_row", {
