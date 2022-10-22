@@ -6,12 +6,14 @@ export interface TTElement {
 export interface Settings {
   master_volume: number;
   master_mute: boolean;
+  voice: string;
   time_table: TTElement[];
 }
 
 export const defaultSettings: Settings = {
   master_volume: 80,
   master_mute: false,
+  voice: "Tsukuyomichan",
   time_table: [
     { time: 0, active: true },
     { time: 100, active: false },
@@ -50,6 +52,11 @@ export const getMasterMuteStorage = () => {
     return json === null ? null : JSON.parse(json);
   };
 
+export const getVoiceStorage = () => {
+    const json = localStorage.getItem("hatodokeiVoice");
+    return json === null ? null : JSON.parse(json);
+  };
+
 export const getTimeTableStorage = () => {
     const json = localStorage.getItem("hatodokeiTimeTable");
     return json === null ? null : JSON.parse(json);
@@ -61,6 +68,10 @@ export const setMasterVolumeStorage = (masterVolume: number) => {
 
 export const setMasterMuteStorage = (masterMute: boolean) => {
     localStorage.setItem("hatodokeiMasterMute", JSON.stringify(masterMute));
+  };
+
+export const setVoiceStorage = (voice: string) => {
+    localStorage.setItem("hatodokeiVoice", JSON.stringify(voice));
   };
 
 export const setTimeTableStorage = (timeTable: TTElement[]) => {

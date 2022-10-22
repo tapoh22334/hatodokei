@@ -8,7 +8,6 @@ use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu
 mod debug;
 mod preset_voice;
 mod scheduler;
-mod setting;
 mod sound_coordinator;
 mod ttelement;
 
@@ -26,15 +25,20 @@ fn set_master_mute(mute: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMe
 }
 
 #[tauri::command]
+fn set_voice(voice: String, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
+    SoundCoordinator::set_voice(&tx, voice);
+}
+
+#[tauri::command]
 fn set_table_row(
     row: ttelement::TTElement,
     tx: tauri::State<std::sync::mpsc::SyncSender<SMessage>>,
 ) {
-    Scheduler::edit(&tx, &row);
+    Scheduler::edit(&tx, row);
 }
 
 #[tauri::command]
-fn play(index: u32, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
+fn play(index: usize, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
     SoundCoordinator::play_full_set_list(&tx, index, 100);
 }
 
@@ -42,10 +46,6 @@ fn main() {
     // Start Backend
     let tx_sound_coordinator = sound_coordinator::SoundCoordinator::activate();
     let tx_scheduler = scheduler::Scheduler::activate(tx_sound_coordinator.clone());
-
-    // Load settings
-    // TODO: implement save, load feature
-    let settings = setting::Settings::default();
 
     // System tray icon
     let quit = CustomMenuItem::new("Quit".to_string(), "Quit");
@@ -86,7 +86,7 @@ fn main() {
                     }
                     "About" => {
                         let window = app.get_window("main").unwrap();
-                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.4.0");
+                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.5.0");
                     }
                     _ => {}
                 }
@@ -101,12 +101,12 @@ fn main() {
             }
         })
         .system_tray(system_tray)
-        .manage(settings)
         .manage(tx_scheduler)
         .manage(tx_sound_coordinator)
         .invoke_handler(tauri::generate_handler![
             set_master_volume,
             set_master_mute,
+            set_voice,
             set_table_row,
             play,
         ])

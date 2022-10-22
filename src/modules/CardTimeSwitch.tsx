@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
+import Paper from '@mui/material/Paper';
 import IconButton from "@mui/material/IconButton";
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import Typography from '@mui/material/Typography';
@@ -19,7 +20,7 @@ const toTimeString = (hhmm: number) => {
 };
 
 const handlePlayClick = (time: number) => {
-    invoke("play", { index: (time / 100) as number });
+    invoke("play", {index: (time / 100) as number });
 
     console.log("play clicked %d", (time / 100) as number);
 };
@@ -33,7 +34,7 @@ export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
 
     React.useEffect(() => {
         invoke("set_table_row", {
-            row: { time: time, active: active },
+            row: {time: time, active: active },
         });
 
         let newTimeTable = getTimeTableStorage();

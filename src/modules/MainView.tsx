@@ -7,9 +7,11 @@ import {
     Settings,
     getMasterMuteStorage,
     getMasterVolumeStorage,
+    getVoiceStorage,
     getTimeTableStorage,
     setMasterMuteStorage,
     setMasterVolumeStorage,
+    setVoiceStorage,
     setTimeTableStorage
     } from "./DefaultSetting";
 import { CardTimeSwitch } from "./CardTimeSwitch";
@@ -27,20 +29,26 @@ import VolumeDown from "@mui/icons-material/VolumeDown";
 import VolumeUp from "@mui/icons-material/VolumeUp";
 import { styled } from "@mui/material/styles";
 
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import SettingsIcon from '@mui/icons-material/Settings';
 import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import CommentIcon from "@mui/icons-material/Comment";
 import Divider from "@mui/material/Divider";
 
+import Fab from "@mui/material/Fab";
+import EditIcon from '@mui/icons-material/Edit';
 
 export const MainView: React.VFC = (props) => {
-  const [count, setCount] = useState(0);
-
   const [masterVolume, setMasterVolume] = useState(() => {
     let initMasterVolume = getMasterVolumeStorage();
     if (initMasterVolume === null) {
@@ -49,6 +57,16 @@ export const MainView: React.VFC = (props) => {
     }
     console.log("initial master volume: %d", initMasterVolume);
     return initMasterVolume;
+  });
+
+  const [voice, setVoice] = useState(() => {
+    let initVoice = getVoiceStorage();
+    if (initVoice === null) {
+      initVoice = defaultSettings.voice;
+      console.log("Not exist stored voice");
+    }
+    console.log("initial voice: %s", initVoice);
+    return initVoice;
   });
 
   const [timeTable, setTimeTable] = useState<Array<TTElement>>(() => {
@@ -70,12 +88,22 @@ export const MainView: React.VFC = (props) => {
   };
 
   useEffect(() => {
+    invoke("set_voice", { voice: voice });
+    setVoiceStorage(voice);
+    console.log("set voice: %s", voice);
+  }, [voice]);
+
+  const onVoiceChange = (event: SelectChangeEvent) => {
+    setVoice(event.target.value as string);
+  };
+
+  useEffect(() => {
     console.log("TimeTable Changed!!");
   }, [timeTable]);
 
   return (
     <React.Fragment>
-    <AppBar color="primary">
+    <AppBar sx={{overflow: 'hidden'}}>
       <Toolbar>
         <Box sx={{ width: 220 }} alignItems="center" position="sticky">
           <Stack
@@ -96,12 +124,34 @@ export const MainView: React.VFC = (props) => {
           </Stack>
         </Box>
       </Toolbar>
+
     </AppBar>
 
+    {/*<Box sx={{ mt: 8, mb: 7, overflow: 'hidden', overflowY: 'scroll', height: 540}}>*/}
+    <Box sx={{ mt: 8, overflow: 'hidden', overflowY: 'scroll', height: 575}}>
+    <FormControl sx={{ m: 1 , minWidth: 150}} size="small">
+      <InputLabel id="voice-select">声</InputLabel>
+      <Select
+        labelId="voice-select"
+        id="voice-select"
+        value={voice}
+        label="Voice"
+        onChange={onVoiceChange}
+        >
+        <MenuItem value="Tsukuyomichan">つくよみちゃん</MenuItem>
+        <MenuItem value="Oftonp">おふとんP</MenuItem>
+        <MenuItem value="Mana">MANA</MenuItem>
+        <MenuItem value="Kana">KANA</MenuItem>
+        <MenuItem value="Shikokumetan">四国めたん</MenuItem>
+        <MenuItem value="Zundamon">ずんだもん</MenuItem>
+      </Select>
+    </FormControl>
+
+
     <Stack
-      sx={{ mt: 8, mb: 7 }}
       spacing={0.3}
       alignItems="center"
+      sx={{ mb: 7 }}
       //justifyContent="center"
     >
       {timeTable.length > 0 &&
@@ -110,6 +160,8 @@ export const MainView: React.VFC = (props) => {
           return <CardTimeSwitch row={row}/>;
         })}
     </Stack>
+    </Box>
+
     </React.Fragment>
   );
 

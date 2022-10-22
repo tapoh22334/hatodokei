@@ -50,11 +50,11 @@ impl Scheduler {
                 }
 
                 // Play sound if the time is come
-                if next_play.is_some() && Self::sub_minute(next_play.unwrap().time, &now) == 0 {
-                    if next_play.unwrap().active {
-                        let index = next_play.unwrap().time / 100;
+                if next_play.is_some() && Self::sub_minute(next_play.as_ref().unwrap().time, &now) == 0 {
+                    if next_play.as_ref().unwrap().active {
+                        let index = next_play.as_ref().unwrap().time / 100;
                         println!("playing index: {:?}", index);
-                        SoundCoordinator::play_full_set_list(&tx_sc, index, 100);
+                        SoundCoordinator::play_full_set_list(&tx_sc, index.try_into().unwrap(), 100);
                     }
 
                     println!("NextPlay is set none");
@@ -68,8 +68,8 @@ impl Scheduler {
         tx
     }
 
-    pub fn edit(tx_s: &std::sync::mpsc::SyncSender<SMessage>, row: &ttelement::TTElement) {
-        tx_s.send(SMessage::Overwrite(*row)).unwrap();
+    pub fn edit(tx_s: &std::sync::mpsc::SyncSender<SMessage>, row: ttelement::TTElement) {
+        tx_s.send(SMessage::Overwrite(row)).unwrap();
     }
 
     fn process_message(time_table: &mut Vec<ttelement::TTElement>, message: SMessage) -> bool {
@@ -115,12 +115,12 @@ impl Scheduler {
 
         let target = *now + chrono::Duration::minutes(1);
         return Some(
-            *time_table
+            time_table
                 .iter()
                 .min_by_key(|x| {
                     ttelement::TTElement::sub(x.time, target.hour() * 100 + target.minute())
                 })
-                .unwrap(),
+                .unwrap().clone(),
         );
     }
 }

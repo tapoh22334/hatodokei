@@ -13,7 +13,7 @@ pub struct ExSink {
 pub enum SoundSource {
     Popopopin(),
     Silence(f32),
-    Voice(u32),
+    VoiceIndex(usize),
     // Not impremented.
     // this element is reserved for playing user prepared voice data.
     #[allow(unused)]
@@ -25,19 +25,24 @@ pub struct PlayInfo {
     pub sources: Vec<SoundSource>,
 }
 
-#[derive(Default)]
-pub struct SCMessage {
-    pub master_volume: Option<u32>,
-    pub master_mute: Option<bool>,
-    pub play_info: Option<PlayInfo>,
+pub enum SCMessage {
+    MasterVolume(u32),
+    MasterMute(bool),
+    Voice(String),
+    PlayInfo(PlayInfo),
 }
 
-pub struct SoundCoordinator {}
+pub struct SoundCoordinator {
+}
 
 impl SoundCoordinator {
     pub fn activate() -> std::sync::mpsc::SyncSender<SCMessage> {
         use std::sync::mpsc;
         let (tx, rx) = mpsc::sync_channel::<SCMessage>(1);
+        let preset_voice = preset_voice::PresetVoice::new();
+
+        // Default Configuration
+        let mut voice: String = String::from("Tsukuyomichan");
         let mut master_volume: u32 = 100;
 
         std::thread::spawn(move || {
@@ -45,7 +50,7 @@ impl SoundCoordinator {
             let (mut _output_stream, mut output_stream_handle) = OutputStream::try_default().unwrap();
 
             loop {
-                let message = rx.recv().unwrap_or_default();
+                let message = rx.recv().expect("sound_coordinator: disconnected");
 
                 // Cleanup playback list
                 while let Some(index) = exsinks
@@ -57,50 +62,58 @@ impl SoundCoordinator {
                 }
 
                 // Received play request
-                if let Some(playinfo) = message.play_info {
-                    if exsinks.is_empty() {
-                        // output_stream_handle won't work when _output_stream is dropped.
-                        println!("SoundCoordinator: Opened new output stream");
-                        (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap_or_else(
-                            |e| {
-                                println!("SoundCoordinator: Failed to open device {:?}", e);
-                                (_output_stream, output_stream_handle)
-                            });
+                match message {
+                    SCMessage::PlayInfo(playinfo) => {
+                        if exsinks.is_empty() {
+                            // output_stream_handle won't work when _output_stream is dropped.
+                            println!("SoundCoordinator: Opened new output stream");
+                            (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap_or_else(
+                                |e| {
+                                    println!("SoundCoordinator: Failed to open device {:?}", e);
+                                    (_output_stream, output_stream_handle)
+                                });
+                        }
+
+                        let sink = Self::_play(&preset_voice, &voice, &playinfo.sources, &output_stream_handle);
+                        sink.set_volume(Self::to_volume_magnification(
+                                master_volume,
+                                playinfo.volume,
+                                ));
+
+                        exsinks.push(ExSink {
+                            volume: playinfo.volume,
+                            sink,
+                        });
+
+                        println!("SoundCoordinator: playinfo accepted");
                     }
 
-                    let sink = Self::_play(&playinfo.sources, &output_stream_handle);
-                    sink.set_volume(Self::to_volume_magnification(
-                        master_volume,
-                        playinfo.volume,
-                    ));
-
-                    exsinks.push(ExSink {
-                        volume: playinfo.volume,
-                        sink,
-                    });
-
-                    println!("SoundCoordinator: playinfo accepted");
-                }
-
-                // Received volume change request
-                if let Some(vol) = message.master_volume {
-                    master_volume = vol;
-                    for ExSink { volume, sink } in &exsinks {
-                        sink.set_volume(Self::to_volume_magnification(master_volume, *volume));
+                    SCMessage::Voice(v) => {
+                        voice = v;
+                        println!("SoundCoordinator: update voice {:?}", voice);
                     }
 
-                    println!("SoundCoordinator: update master volume {:?}", master_volume);
-                }
+                    // Received volume change request
+                    SCMessage::MasterVolume(vol) => {
+                        master_volume = vol;
+                        for ExSink { volume, sink } in &exsinks {
+                            sink.set_volume(Self::to_volume_magnification(master_volume, *volume));
+                        }
 
-                // Received mute request
-                if let Some(master_mute) = message.master_mute {
-                    let volume_mute = if master_mute { 0 } else { master_volume };
-
-                    for ExSink { volume, sink } in &exsinks {
-                        sink.set_volume(Self::to_volume_magnification(volume_mute, *volume));
+                        println!("SoundCoordinator: update master volume {:?}", master_volume);
                     }
 
-                    println!("SoundCoordinator: update master volume {:?}", volume_mute);
+                    // Received mute request
+                    SCMessage::MasterMute(master_mute) => {
+                        let volume_mute = if master_mute { 0 } else { master_volume };
+
+                        for ExSink { volume, sink } in &exsinks {
+                            sink.set_volume(Self::to_volume_magnification(volume_mute, *volume));
+                        }
+
+                        println!("SoundCoordinator: update master volume {:?}", volume_mute);
+                    }
+
                 }
             }
         });
@@ -108,7 +121,36 @@ impl SoundCoordinator {
         tx
     }
 
-    fn _play(sources: &Vec<SoundSource>, streamhandle: &OutputStreamHandle) -> Sink {
+    pub fn play_full_set_list(
+        tx: &std::sync::mpsc::SyncSender<SCMessage>,
+        voice_index: usize,
+        volume: u32,
+    ) {
+        let sources: Vec<SoundSource> = vec![
+            SoundSource::Popopopin(),
+            SoundSource::Silence(0.75),
+            SoundSource::VoiceIndex(voice_index),
+        ];
+        let play_info = PlayInfo { volume, sources };
+
+        tx.send(SCMessage::PlayInfo(play_info)).unwrap();
+
+        println!("SoundCoordinator: played full set list {:?}", voice_index);
+    }
+
+    pub fn set_master_volume(tx: &std::sync::mpsc::SyncSender<SCMessage>, mv: u32) {
+        tx.send(SCMessage::MasterVolume(mv)).unwrap();
+    }
+
+    pub fn set_master_mute(tx: &std::sync::mpsc::SyncSender<SCMessage>, mute: bool) {
+        tx.send(SCMessage::MasterMute(mute)).unwrap();
+    }
+
+    pub fn set_voice(tx: &std::sync::mpsc::SyncSender<SCMessage>, voice: String) {
+        tx.send(SCMessage::Voice(voice)).unwrap();
+    }
+
+    fn _play(preset_voice: &preset_voice::PresetVoice, voice: &String, sources: &Vec<SoundSource>, streamhandle: &OutputStreamHandle) -> Sink {
         let mut sink = Sink::try_new(streamhandle).unwrap();
 
         for source in sources {
@@ -119,57 +161,13 @@ impl SoundCoordinator {
                 SoundSource::Silence(sec) => {
                     Self::play_none(&mut sink, *sec);
                 }
-                SoundSource::Voice(index) => {
-                    Self::play_preset_voice(&mut sink, *index);
+                SoundSource::VoiceIndex(index) => {
+                    Self::play_preset_voice(preset_voice, &mut sink, voice, *index);
                 }
                 SoundSource::Path(_path) => {} // Not implemented
             };
         }
         sink
-    }
-
-    pub fn play(tx: &std::sync::mpsc::SyncSender<SCMessage>, play_info: PlayInfo) {
-        tx.send(SCMessage {
-            master_volume: None,
-            master_mute: None,
-            play_info: Some(play_info),
-        })
-        .unwrap();
-    }
-
-    pub fn play_full_set_list(
-        tx: &std::sync::mpsc::SyncSender<SCMessage>,
-        voice_index: u32,
-        volume: u32,
-    ) {
-        let sources: Vec<SoundSource> = vec![
-            SoundSource::Popopopin(),
-            SoundSource::Silence(0.75),
-            SoundSource::Voice(voice_index),
-        ];
-        let play_info = PlayInfo { volume, sources };
-
-        Self::play(tx, play_info);
-
-        println!("SoundCoordinator: played full set list {:?}", voice_index);
-    }
-
-    pub fn set_master_volume(tx: &std::sync::mpsc::SyncSender<SCMessage>, mv: u32) {
-        tx.send(SCMessage {
-            master_volume: Some(mv),
-            master_mute: None,
-            play_info: None,
-        })
-        .unwrap();
-    }
-
-    pub fn set_master_mute(tx: &std::sync::mpsc::SyncSender<SCMessage>, mute: bool) {
-        tx.send(SCMessage {
-            master_volume: None,
-            master_mute: Some(mute),
-            play_info: None,
-        })
-        .unwrap();
     }
 
     fn to_volume_magnification(master_volume: u32, volume: u32) -> f32 {
@@ -212,9 +210,9 @@ impl SoundCoordinator {
         sink.append(sinwave);
     }
 
-    fn play_preset_voice(sink: &mut Sink, index: u32) {
+    fn play_preset_voice(preset_voice: &preset_voice::PresetVoice, sink: &mut Sink, voice: &String, index: usize) {
         let source = rodio::Decoder::new(std::io::Cursor::new(
-            preset_voice::PresetVoice::voice_data(index),
+            preset_voice.get_data(preset_voice::Voice::try_from(voice).unwrap(), index).clone(),
         ))
         .unwrap();
 

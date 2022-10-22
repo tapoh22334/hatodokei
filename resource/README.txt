@@ -13,14 +13,33 @@ https://iwase22334.github.io/hatodokei/
 - 全体の音量調整
 - タスクトレイ
 - 設定の自動保存
+- 通知音声の切り替え
 
 ## 動作環境
 Windows / macOS
 
-## 音声データについて
-■フリー素材キャラクター「つくよみちゃん」（© Rei Yumesaki）を使用しています。
-■音声合成ソフト：つくよみちゃん@COEIROINK
-https://tyc.rei-yumesaki.net/
+## 音声について
+以下のボイスを使用しています。
+
+■無料AIトークソフトCOEIROINK: https://coeiroink.com
+
+ ■COEIROINK:つくよみちゃん
+ ■フリー素材キャラクターつくよみちゃん: https://tyc.rei-yumesaki.net
+
+ ■COEIROINK:MANA
+ ■音声合成キャラクターMANA: https://cf-mk.jimdofree.com/mana/
+
+ ■COEIROINK:KANA
+ ■音声合成キャラクターKANA: https://cf-mk.jimdofree.com/kana/
+
+ ■COEIROINK:おふとんP
+ ■おふとんPの作業部屋: http://mohumohuton.web.fc2.com
+
+■ VOICEVOX: https://voicevox.hiroshiba.jp/
+
+ ■VOICEVOX:ずんだもん
+ ■VOICEVOX:四国めたん
+
 
 ## Lisence
 本ソフトウェアはフリーソフトウェアです。

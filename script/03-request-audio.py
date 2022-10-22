@@ -31,5 +31,8 @@ if __name__ == "__main__":
 
     print(audio_query)
     response = request_audio(sentence, speaker, audio_query)
-    with open(f"{speaker}_{sentence}.wav", "wb") as file:
+
+    print(response)
+
+    with open(f"{sentence}.wav", "wb") as file:
         file.write(response.content)

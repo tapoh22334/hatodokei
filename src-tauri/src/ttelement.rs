@@ -1,4 +1,4 @@
-#[derive(serde::Deserialize, serde::Serialize, Copy, Clone, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct TTElement {
     pub time: u32,
