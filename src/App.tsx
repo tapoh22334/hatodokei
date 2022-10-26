@@ -1,11 +1,21 @@
 import "./App.css";
-import {MainView} from './modules/MainView'
+import { Licenses } from './modules/LicensesView'
+import { MainView } from './modules/MainView'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
     return (
-    <div className="App">
-      <MainView />
-    </div>
+
+       <BrowserRouter>
+         <Routes>
+             <Route path={`/`} element={
+                 <div className="App">
+                    <MainView />
+                </div>
+              } />
+             <Route path={`/licenses/`} element={<Licenses />} />
+         </Routes>
+      </BrowserRouter>
     );
 }
 

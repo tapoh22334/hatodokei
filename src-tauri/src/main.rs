@@ -50,10 +50,12 @@ fn main() {
     // System tray icon
     let quit = CustomMenuItem::new("Quit".to_string(), "Quit");
     let about = CustomMenuItem::new("About".to_string(), "About");
+    let license = CustomMenuItem::new("Licenses".to_string(), "Licenses");
     let tray_menu = SystemTrayMenu::new()
         .add_item(quit)
         .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(about);
+        .add_item(about)
+        .add_item(license);
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     // Show main window
@@ -87,6 +89,14 @@ fn main() {
                     "About" => {
                         let window = app.get_window("main").unwrap();
                         tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.5.1");
+                    }
+                    "Licenses" => {
+                        let local_window = tauri::WindowBuilder::new(
+                            app,
+                            "license",
+                            tauri::WindowUrl::App("/licenses/".into())
+                            ).build().ok().unwrap();
+                        local_window.set_title("Licenses").unwrap();
                     }
                     _ => {}
                 }
