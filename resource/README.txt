@@ -1,16 +1,13 @@
 鳩時計時報
-Version 1.5.0
+Version 1.5.1
 Copyright (C) 2022 tapoh
 
 ## 本ソフトウェアについて
-つくよみちゃんが読み上げるシンプルな時報アプリ。
-一時間ごとに時間をお知らせします。
+つくよみちゃんたちが読み上げるシンプルな時報アプリ。
+一時間ごとに時間を読み上げます。
 
 ## 操作方法
 https://www.youtube.com/watch?v=70C6CVCt1vA
-
-## 公式サイト
-https://iwase22334.github.io/hatodokei/
 
 ## 機能
 - 特定の時報をミュート

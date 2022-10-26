@@ -32,6 +32,8 @@ export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
     const [time, setTime] = React.useState(props.row.time);
     const [active, setActive] = React.useState(props.row.active);
 
+    console.log("card refresh %o", props);
+
     React.useEffect(() => {
         invoke("set_table_row", {
             row: {time: time, active: active },
