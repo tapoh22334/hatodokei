@@ -86,7 +86,7 @@ fn main() {
                     }
                     "About" => {
                         let window = app.get_window("main").unwrap();
-                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.5.0");
+                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.5.1");
                     }
                     _ => {}
                 }

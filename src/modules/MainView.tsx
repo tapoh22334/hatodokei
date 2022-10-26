@@ -73,7 +73,12 @@ export const MainView: React.VFC = (props) => {
       let initTimeTable = getTimeTableStorage();
       if (initTimeTable === null) {
           initTimeTable = defaultSettings.time_table
+
+          // TimeTbleStorage is not null able, Must be initialized here.
+          setTimeTableStorage(initTimeTable);
+          console.log("Not exist stored table");
       }
+      console.log("time table: %o",initTimeTable);
       return initTimeTable;
   });
 
@@ -98,7 +103,7 @@ export const MainView: React.VFC = (props) => {
   };
 
   useEffect(() => {
-    console.log("TimeTable Changed!!");
+    console.log("TimeTable Changed!! %o", timeTable);
   }, [timeTable]);
 
   return (
