@@ -1,5 +1,5 @@
 鳩時計時報
-Version 1.5.1
+Version 1.5.2
 Copyright (C) 2022 tapoh
 
 ## 本ソフトウェアについて

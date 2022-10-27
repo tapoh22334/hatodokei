@@ -14,6 +14,7 @@
  - [x] 全体の音量調整
  - [x] タスクトレイ在中
  - [x] 設定の保存
+ - [x] 音声の選択
  - [ ] 時間の追加・編集
 
 
@@ -60,7 +61,10 @@ npx prettier --write src/*.ts src/*.tsx
 (cd src-tauri; cargo clippy -- -D warnings)
 ```
 
-## Lisence
+- license file generation
+(cd src-tauri; cargo about generate -o ../resource/THIRD-PARTY-NOTICES-cargo.txt about.hbs)
+(yarn licenses generate-disclaimer | tee resource/THIRD-PARTY-NOTICES-yarn.txt)
+
 
 ### ソースコード
 
