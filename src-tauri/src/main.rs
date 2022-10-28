@@ -88,7 +88,16 @@ fn main() {
                     }
                     "About" => {
                         let window = app.get_window("main").unwrap();
-                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.5.2");
+                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.5.3
+
+  声
+   COEIROINK:つくよみちゃん
+   COEIROINK:MANA
+   COEIROINK:KANA
+   COEIROINK:おふとんP
+   VOICEVOX:ずんだもん
+   VOICEVOX:四国めたん
+");
                     }
                     "Licenses" => {
                         let local_window = tauri::WindowBuilder::new(

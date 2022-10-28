@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Hatodokei",
-    "version": "1.5.2"
+    "version": "1.5.3"
   },
   "tauri": {
     "allowlist": {
@@ -62,7 +62,7 @@
         "fullscreen": false,
         "height": 640,
         "resizable": false,
-        "title": "Hatodokei",
+        "title": "鳩時計時報",
         "width": 240
       }
     ]

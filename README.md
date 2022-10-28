@@ -73,8 +73,25 @@ npx prettier --write src/*.ts src/*.tsx
  - https://github.com/iwase22334/hatodokei/blob/main/THIRD-PARTY-NOTICES.txt
 を参照してください。
 
-### 音声データ
+### 音声について
+以下のボイスを使用しています。
 
- - ■フリー素材キャラクター「つくよみちゃん」（© Rei Yumesaki）を使用しています。
- - ■音声合成ソフト：つくよみちゃん@COEIROINK
- - https://tyc.rei-yumesaki.net/
+■無料AIトークソフトCOEIROINK: https://coeiroink.com
+
+ ■COEIROINK:つくよみちゃん
+ ■フリー素材キャラクターつくよみちゃん: https://tyc.rei-yumesaki.net
+
+ ■COEIROINK:MANA
+ ■音声合成キャラクターMANA: https://cf-mk.jimdofree.com/mana/
+
+ ■COEIROINK:KANA
+ ■音声合成キャラクターKANA: https://cf-mk.jimdofree.com/kana/
+
+ ■COEIROINK:おふとんP
+ ■おふとんPの作業部屋: http://mohumohuton.web.fc2.com
+
+■ VOICEVOX: https://voicevox.hiroshiba.jp/
+
+ ■VOICEVOX:ずんだもん
+ ■VOICEVOX:四国めたん
+
