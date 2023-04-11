@@ -13,12 +13,12 @@ impl TryFrom<&String> for Voice {
 
     fn try_from(v: &String) -> Result<Self, Self::Error> {
         match v {
-            x if x == "Tsukuyomichan" => Ok(Voice::Tsukuyomichan),
-            x if x == "Oftonp" => Ok(Voice::Oftonp),
-            x if x == "Mana" => Ok(Voice::Mana),
-            x if x == "Kana" => Ok(Voice::Kana),
-            x if x == "Shikokumetan" => Ok(Voice::Shikokumetan),
-            x if x == "Zundamon" => Ok(Voice::Zundamon),
+            x if x == "つくよみちゃん" => Ok(Voice::Tsukuyomichan),
+            x if x == "おふとんP" => Ok(Voice::Oftonp),
+            x if x == "MANA" => Ok(Voice::Mana),
+            x if x == "KANA" => Ok(Voice::Kana),
+            x if x == "四国めたん" => Ok(Voice::Shikokumetan),
+            x if x == "ずんだもん" => Ok(Voice::Zundamon),
             _ => Err(()),
         }
     }

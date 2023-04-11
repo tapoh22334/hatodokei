@@ -42,7 +42,7 @@ impl SoundCoordinator {
         let preset_voice = preset_voice::PresetVoice::new();
 
         // Default Configuration
-        let mut voice: String = String::from("Tsukuyomichan");
+        let mut voice: String = String::from("つくよみちゃん");
         let mut master_volume: u32 = 100;
 
         std::thread::spawn(move || {

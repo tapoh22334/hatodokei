@@ -143,12 +143,12 @@ export const MainView: React.VFC = (props) => {
         label="Voice"
         onChange={onVoiceChange}
         >
-        <MenuItem value="Tsukuyomichan">つくよみちゃん</MenuItem>
-        <MenuItem value="Oftonp">おふとんP</MenuItem>
-        <MenuItem value="Mana">MANA</MenuItem>
-        <MenuItem value="Kana">KANA</MenuItem>
-        <MenuItem value="Shikokumetan">四国めたん</MenuItem>
-        <MenuItem value="Zundamon">ずんだもん</MenuItem>
+        <MenuItem value="つくよみちゃん">つくよみちゃん</MenuItem>
+        <MenuItem value="おふとんP">おふとんP</MenuItem>
+        <MenuItem value="MANA">MANA</MenuItem>
+        <MenuItem value="KANA">KANA</MenuItem>
+        <MenuItem value="四国めたん">四国めたん</MenuItem>
+        <MenuItem value="ずんだもん">ずんだもん</MenuItem>
       </Select>
     </FormControl>
 

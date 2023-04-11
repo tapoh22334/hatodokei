@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Hatodokei",
-    "version": "1.5.3"
+    "version": "1.6.0"
   },
   "tauri": {
     "allowlist": {
@@ -33,7 +33,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "iwase22334",
+      "identifier": "jp.tapoh.hatodokeijihou",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
