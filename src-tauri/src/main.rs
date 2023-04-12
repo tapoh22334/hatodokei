@@ -25,6 +25,11 @@ fn set_master_mute(mute: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMe
 }
 
 #[tauri::command]
+fn set_effect(effect: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
+    SoundCoordinator::set_effect(&tx, effect);
+}
+
+#[tauri::command]
 fn set_voice(voice: String, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
     SoundCoordinator::set_voice(&tx, voice);
 }
@@ -39,7 +44,7 @@ fn set_table_row(
 
 #[tauri::command]
 fn play(index: usize, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
-    SoundCoordinator::play_full_set_list(&tx, index, 100);
+    SoundCoordinator::play_index(&tx, index, 100);
 }
 
 fn main() {
@@ -88,16 +93,7 @@ fn main() {
                     }
                     "About" => {
                         let window = app.get_window("main").unwrap();
-                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.6.0
-
-  声
-   COEIROINK:つくよみちゃん
-   COEIROINK:MANA
-   COEIROINK:KANA
-   COEIROINK:おふとんP
-   VOICEVOX:ずんだもん
-   VOICEVOX:四国めたん
-");
+                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.6.0");
                     }
                     "Licenses" => {
                         let local_window = tauri::WindowBuilder::new(
@@ -125,6 +121,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             set_master_volume,
             set_master_mute,
+            set_effect,
             set_voice,
             set_table_row,
             play,

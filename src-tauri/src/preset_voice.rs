@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use rand::seq::SliceRandom;
+
 #[derive(Clone)]
 pub struct Voice {
     name: String,
@@ -1193,6 +1195,11 @@ impl PresetVoice {
     }
 
     pub fn get_data(&self, voice: Voice, index: usize) -> &Vec<u8> {
+        if voice.name == "#ランダム" {
+            let items = self.data.iter().collect::<Vec<_>>();
+            let (_name, v) = items.choose(&mut rand::thread_rng()).unwrap();
+            return &v[index]
+        }
         return &self.data.get(&voice.name).unwrap()[index]
     }
 }

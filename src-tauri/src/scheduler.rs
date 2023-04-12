@@ -54,7 +54,7 @@ impl Scheduler {
                     if next_play.as_ref().unwrap().active {
                         let index = next_play.as_ref().unwrap().time / 100;
                         println!("playing index: {:?}", index);
-                        SoundCoordinator::play_full_set_list(&tx_sc, index.try_into().unwrap(), 100);
+                        SoundCoordinator::play_index(&tx_sc, index.try_into().unwrap(), 100);
                     }
 
                     println!("NextPlay is set none");

@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
-import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
 import {
     defaultSettings,
     TTElement,
-    Settings,
-    getMasterMuteStorage,
     getMasterVolumeStorage,
+    getEffectStorage,
     getVoiceStorage,
     getTimeTableStorage,
-    setMasterMuteStorage,
     setMasterVolumeStorage,
+    setEffectStorage,
     setVoiceStorage,
     setTimeTableStorage
     } from "./DefaultSetting";
@@ -21,32 +19,16 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
 import Slider from "@mui/material/Slider";
 import VolumeDown from "@mui/icons-material/VolumeDown";
 import VolumeUp from "@mui/icons-material/VolumeUp";
-import { styled } from "@mui/material/styles";
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import SettingsIcon from '@mui/icons-material/Settings';
-import ListItemText from "@mui/material/ListItemText";
-import Checkbox from "@mui/material/Checkbox";
-import IconButton from "@mui/material/IconButton";
-import CommentIcon from "@mui/icons-material/Comment";
-import Divider from "@mui/material/Divider";
-
-import Fab from "@mui/material/Fab";
-import EditIcon from '@mui/icons-material/Edit';
 
 export const MainView: React.VFC = (props) => {
   const [masterVolume, setMasterVolume] = useState(() => {
@@ -57,6 +39,16 @@ export const MainView: React.VFC = (props) => {
     }
     console.log("initial master volume: %d", initMasterVolume);
     return initMasterVolume;
+  });
+
+  const [effect, setEffect] = useState(() => {
+    let initEffect = getEffectStorage();
+    if (initEffect === null) {
+      initEffect = defaultSettings.effect;
+      console.log("Not exist stored effect");
+    }
+    console.log("initial effect: %s", initEffect);
+    return initEffect;
   });
 
   const [voice, setVoice] = useState(() => {
@@ -90,6 +82,16 @@ export const MainView: React.VFC = (props) => {
 
   const handleVolumeChange = (event: Event, value: number | number[]) => {
     setMasterVolume(value as number);
+  };
+
+  useEffect(() => {
+    invoke("set_effect", { effect: effect });
+    setEffectStorage(effect);
+    console.log("set effect: %s", effect);
+  }, [effect]);
+
+  const onEffectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEffect(event.target.checked as boolean);
   };
 
   useEffect(() => {
@@ -134,6 +136,8 @@ export const MainView: React.VFC = (props) => {
 
     {/*<Box sx={{ mt: 8, mb: 7, overflow: 'hidden', overflowY: 'scroll', height: 540}}>*/}
     <Box sx={{ mt: 8, overflow: 'hidden', overflowY: 'scroll', height: 575}}>
+
+    <FormControlLabel control={<Switch value={effect} onChange={onEffectChange}/>} label="効果音" />
     <FormControl sx={{ m: 1 , minWidth: 150}} size="small">
       <InputLabel id="voice-select">声</InputLabel>
       <Select
@@ -153,7 +157,6 @@ export const MainView: React.VFC = (props) => {
             <MenuItem value="AI声優-朱花-のーまる">AI声優-朱花</MenuItem> 
             <MenuItem value="AI声優-青葉-のーまる">AI声優-青葉</MenuItem> 
             <MenuItem value="AI声優-銀芽-のーまる">AI声優-銀芽</MenuItem> 
-            <MenuItem value="AI声優-銀芽-感情的">AI声優-銀芽-感情的</MenuItem> 
             <MenuItem value="伊能いお-ふつう">伊能いお</MenuItem> 
             <MenuItem value="あみたろ-のーまるv4">あみたろ</MenuItem> 
             <MenuItem value="お星-テンション↑↑">お星</MenuItem> 
@@ -181,6 +184,7 @@ export const MainView: React.VFC = (props) => {
             <MenuItem value="春歌ナナ-ノーマル">春歌ナナ</MenuItem> 
             <MenuItem value="猫使アル-ノーマル">猫使アル</MenuItem> 
             <MenuItem value="猫使ビィ-ノーマル">猫使ビィ</MenuItem> 
+            <MenuItem value="#ランダム">#ランダム</MenuItem> 
       </Select>
     </FormControl>
 

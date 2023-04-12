@@ -10,6 +10,7 @@ pub struct ExSink {
     sink: Sink,
 }
 
+#[derive(Clone)]
 pub enum SoundSource {
     Popopopin(),
     Silence(f32),
@@ -28,6 +29,7 @@ pub struct PlayInfo {
 pub enum SCMessage {
     MasterVolume(u32),
     MasterMute(bool),
+    Effect(bool),
     Voice(String),
     PlayInfo(PlayInfo),
 }
@@ -42,8 +44,14 @@ impl SoundCoordinator {
         let preset_voice = preset_voice::PresetVoice::new();
 
         // Default Configuration
-        let mut voice: String = String::from("つくよみちゃん");
+        let mut voice: String = String::from("つくよみちゃん-れいせい");
         let mut master_volume: u32 = 100;
+        let mut enable_effect = true;
+
+        let effect_sources: Vec<SoundSource> = vec![
+            SoundSource::Popopopin(),
+            SoundSource::Silence(0.75),
+        ];
 
         std::thread::spawn(move || {
             let mut exsinks = Vec::<ExSink>::default();
@@ -74,7 +82,15 @@ impl SoundCoordinator {
                                 });
                         }
 
-                        let sink = Self::_play(&preset_voice, &voice, &playinfo.sources, &output_stream_handle);
+                        let sources = if enable_effect {
+                            let mut sl = effect_sources.clone();
+                            sl.append(&mut playinfo.sources.clone());
+                            sl
+                        } else {
+                            playinfo.sources
+                        };
+
+                        let sink = Self::_play(&preset_voice, &voice, &sources, &output_stream_handle);
                         sink.set_volume(Self::to_volume_magnification(
                                 master_volume,
                                 playinfo.volume,
@@ -91,6 +107,11 @@ impl SoundCoordinator {
                     SCMessage::Voice(v) => {
                         voice = v;
                         println!("SoundCoordinator: update voice {:?}", voice);
+                    }
+
+                    SCMessage::Effect(e) => {
+                        enable_effect = e;
+                        println!("SoundCoordinator: update effect {:?}", enable_effect);
                     }
 
                     // Received volume change request
@@ -121,14 +142,12 @@ impl SoundCoordinator {
         tx
     }
 
-    pub fn play_full_set_list(
+    pub fn play_index(
         tx: &std::sync::mpsc::SyncSender<SCMessage>,
         voice_index: usize,
         volume: u32,
     ) {
         let sources: Vec<SoundSource> = vec![
-            SoundSource::Popopopin(),
-            SoundSource::Silence(0.75),
             SoundSource::VoiceIndex(voice_index),
         ];
         let play_info = PlayInfo { volume, sources };
@@ -148,6 +167,10 @@ impl SoundCoordinator {
 
     pub fn set_voice(tx: &std::sync::mpsc::SyncSender<SCMessage>, voice: String) {
         tx.send(SCMessage::Voice(voice)).unwrap();
+    }
+
+    pub fn set_effect(tx: &std::sync::mpsc::SyncSender<SCMessage>, effect: bool) {
+        tx.send(SCMessage::Effect(effect)).unwrap();
     }
 
     fn _play(preset_voice: &preset_voice::PresetVoice, voice: &String, sources: &Vec<SoundSource>, streamhandle: &OutputStreamHandle) -> Sink {
