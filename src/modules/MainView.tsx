@@ -143,12 +143,44 @@ export const MainView: React.VFC = (props) => {
         label="Voice"
         onChange={onVoiceChange}
         >
-        <MenuItem value="つくよみちゃん">つくよみちゃん</MenuItem>
-        <MenuItem value="おふとんP">おふとんP</MenuItem>
-        <MenuItem value="MANA">MANA</MenuItem>
-        <MenuItem value="KANA">KANA</MenuItem>
-        <MenuItem value="四国めたん">四国めたん</MenuItem>
-        <MenuItem value="ずんだもん">ずんだもん</MenuItem>
+            <MenuItem value="つくよみちゃん-れいせい">つくよみちゃん</MenuItem> 
+            <MenuItem value="MANA-のーまる">MANA</MenuItem> 
+            <MenuItem value="おふとんP-のーまるv2">おふとんP</MenuItem> 
+            <MenuItem value="ディアちゃん-のーまる">ディアちゃん</MenuItem> 
+            <MenuItem value="アルマちゃん-表-v2">アルマちゃん</MenuItem> 
+            <MenuItem value="KANA-のーまる">KANA</MenuItem> 
+            <MenuItem value="MANA+-ないしょばなし">MANA+-ないしょばなし</MenuItem> 
+            <MenuItem value="AI声優-朱花-のーまる">AI声優-朱花</MenuItem> 
+            <MenuItem value="AI声優-青葉-のーまる">AI声優-青葉</MenuItem> 
+            <MenuItem value="AI声優-銀芽-のーまる">AI声優-銀芽</MenuItem> 
+            <MenuItem value="AI声優-銀芽-感情的">AI声優-銀芽-感情的</MenuItem> 
+            <MenuItem value="伊能いお-ふつう">伊能いお</MenuItem> 
+            <MenuItem value="あみたろ-のーまるv4">あみたろ</MenuItem> 
+            <MenuItem value="お星-テンション↑↑">お星</MenuItem> 
+            <MenuItem value="四国めたん-ノーマル">四国めたん</MenuItem> 
+            <MenuItem value="ずんだもん-ノーマル">ずんだもん</MenuItem> 
+            <MenuItem value="ずんだもん-ヒソヒソ">ずんだもん-ヒソヒソ</MenuItem> 
+            <MenuItem value="春日部つむぎ-ノーマル">春日部つむぎ</MenuItem> 
+            <MenuItem value="雨晴はう-ノーマル">雨晴はう</MenuItem> 
+            <MenuItem value="波音リツ-ノーマル">波音リツ</MenuItem> 
+            <MenuItem value="玄野武宏-ノーマル">玄野武宏</MenuItem> 
+            <MenuItem value="白上虎太郎-ふつう">白上虎太郎</MenuItem> 
+            <MenuItem value="青山龍星-ノーマル">青山龍星</MenuItem> 
+            <MenuItem value="冥鳴ひまり-ノーマル">冥鳴ひまり</MenuItem> 
+            <MenuItem value="九州そら-ノーマル">九州そら</MenuItem> 
+            <MenuItem value="剣崎雌雄-ノーマル">剣崎雌雄</MenuItem> 
+            <MenuItem value="WhiteCUL-ノーマル">WhiteCUL</MenuItem> 
+            <MenuItem value="後鬼-人間ver.">後鬼-人間ver.</MenuItem> 
+            <MenuItem value="ちび式じい-ノーマル">ちび式じい</MenuItem> 
+            <MenuItem value="櫻歌ミコ-ノーマル">櫻歌ミコ</MenuItem> 
+            <MenuItem value="小夜/SAYO-ノーマル">小夜/SAYO</MenuItem> 
+            <MenuItem value="ナースロボ＿タイプＴ-ノーマル">ナースロボ＿タイプＴ</MenuItem> 
+            <MenuItem value="†聖騎士 紅桜†-ノーマル">†聖騎士 紅桜†</MenuItem> 
+            <MenuItem value="雀松朱司-ノーマル">雀松朱司</MenuItem> 
+            <MenuItem value="麒ヶ島宗麟-ノーマル">麒ヶ島宗麟</MenuItem> 
+            <MenuItem value="春歌ナナ-ノーマル">春歌ナナ</MenuItem> 
+            <MenuItem value="猫使アル-ノーマル">猫使アル</MenuItem> 
+            <MenuItem value="猫使ビィ-ノーマル">猫使ビィ</MenuItem> 
       </Select>
     </FormControl>
 

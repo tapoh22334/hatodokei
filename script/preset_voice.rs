@@ -1,4 +1,5 @@
-#[derive(Copy, Clone)]
+use std::collections::HashMap;
+#[derive(Clone)]
 pub struct Voice {
     name: String,
 }
@@ -16,10 +17,10 @@ pub struct PresetVoice {
 impl PresetVoice {
     pub fn new() -> Self {
         PresetVoice { data: 
-            vec![
+            HashMap::from([
 
             (
-                "つくよみちゃん".to_string(),
+                "つくよみちゃん-れいせい".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-0-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-0-1時です.wav").to_vec(),
@@ -49,7 +50,7 @@ impl PresetVoice {
             ),
 
             (
-                "MANA".to_string(),
+                "MANA-のーまる".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-1-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-1-1時です.wav").to_vec(),
@@ -79,7 +80,7 @@ impl PresetVoice {
             ),
 
             (
-                "おふとんP".to_string(),
+                "おふとんP-のーまるv2".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-2-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-2-1時です.wav").to_vec(),
@@ -109,7 +110,7 @@ impl PresetVoice {
             ),
 
             (
-                "ディアちゃん".to_string(),
+                "ディアちゃん-のーまる".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-3-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-3-1時です.wav").to_vec(),
@@ -139,7 +140,7 @@ impl PresetVoice {
             ),
 
             (
-                "アルマちゃん".to_string(),
+                "アルマちゃん-表-v2".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-10-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-10-1時です.wav").to_vec(),
@@ -169,7 +170,7 @@ impl PresetVoice {
             ),
 
             (
-                "KANA".to_string(),
+                "KANA-のーまる".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-30-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-30-1時です.wav").to_vec(),
@@ -199,7 +200,7 @@ impl PresetVoice {
             ),
 
             (
-                "MANA+".to_string(),
+                "MANA+-ないしょばなし".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-43-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-43-1時です.wav").to_vec(),
@@ -229,7 +230,7 @@ impl PresetVoice {
             ),
 
             (
-                "AI声優-朱花".to_string(),
+                "AI声優-朱花-のーまる".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-50-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-50-1時です.wav").to_vec(),
@@ -259,7 +260,7 @@ impl PresetVoice {
             ),
 
             (
-                "AI声優-青葉".to_string(),
+                "AI声優-青葉-のーまる".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-60-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-60-1時です.wav").to_vec(),
@@ -289,7 +290,7 @@ impl PresetVoice {
             ),
 
             (
-                "AI声優-銀芽".to_string(),
+                "AI声優-銀芽-のーまる".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-70-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-70-1時です.wav").to_vec(),
@@ -319,7 +320,7 @@ impl PresetVoice {
             ),
 
             (
-                "AI声優-銀芽".to_string(),
+                "AI声優-銀芽-感情的".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-71-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-71-1時です.wav").to_vec(),
@@ -349,7 +350,7 @@ impl PresetVoice {
             ),
 
             (
-                "伊能いお".to_string(),
+                "伊能いお-ふつう".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-38195345-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-38195345-1時です.wav").to_vec(),
@@ -379,7 +380,7 @@ impl PresetVoice {
             ),
 
             (
-                "あみたろ".to_string(),
+                "あみたろ-のーまるv4".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-304122960-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-304122960-1時です.wav").to_vec(),
@@ -409,7 +410,7 @@ impl PresetVoice {
             ),
 
             (
-                "お星".to_string(),
+                "お星-テンション↑↑".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50031-1763904139-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50031-1763904139-1時です.wav").to_vec(),
@@ -439,7 +440,7 @@ impl PresetVoice {
             ),
 
             (
-                "四国めたん".to_string(),
+                "四国めたん-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-2-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-2-1時です.wav").to_vec(),
@@ -469,7 +470,7 @@ impl PresetVoice {
             ),
 
             (
-                "ずんだもん".to_string(),
+                "ずんだもん-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-3-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-3-1時です.wav").to_vec(),
@@ -499,7 +500,7 @@ impl PresetVoice {
             ),
 
             (
-                "ずんだもん".to_string(),
+                "ずんだもん-ヒソヒソ".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-38-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-38-1時です.wav").to_vec(),
@@ -529,7 +530,7 @@ impl PresetVoice {
             ),
 
             (
-                "春日部つむぎ".to_string(),
+                "春日部つむぎ-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-8-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-8-1時です.wav").to_vec(),
@@ -559,7 +560,7 @@ impl PresetVoice {
             ),
 
             (
-                "雨晴はう".to_string(),
+                "雨晴はう-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-10-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-10-1時です.wav").to_vec(),
@@ -589,7 +590,7 @@ impl PresetVoice {
             ),
 
             (
-                "波音リツ".to_string(),
+                "波音リツ-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-9-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-9-1時です.wav").to_vec(),
@@ -619,7 +620,7 @@ impl PresetVoice {
             ),
 
             (
-                "玄野武宏".to_string(),
+                "玄野武宏-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-11-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-11-1時です.wav").to_vec(),
@@ -649,7 +650,7 @@ impl PresetVoice {
             ),
 
             (
-                "白上虎太郎".to_string(),
+                "白上虎太郎-ふつう".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-12-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-12-1時です.wav").to_vec(),
@@ -679,7 +680,7 @@ impl PresetVoice {
             ),
 
             (
-                "青山龍星".to_string(),
+                "青山龍星-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-13-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-13-1時です.wav").to_vec(),
@@ -709,7 +710,7 @@ impl PresetVoice {
             ),
 
             (
-                "冥鳴ひまり".to_string(),
+                "冥鳴ひまり-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-14-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-14-1時です.wav").to_vec(),
@@ -739,7 +740,7 @@ impl PresetVoice {
             ),
 
             (
-                "九州そら".to_string(),
+                "九州そら-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-16-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-16-1時です.wav").to_vec(),
@@ -769,7 +770,7 @@ impl PresetVoice {
             ),
 
             (
-                "剣崎雌雄".to_string(),
+                "剣崎雌雄-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-21-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-21-1時です.wav").to_vec(),
@@ -799,7 +800,7 @@ impl PresetVoice {
             ),
 
             (
-                "WhiteCUL".to_string(),
+                "WhiteCUL-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-23-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-23-1時です.wav").to_vec(),
@@ -829,7 +830,7 @@ impl PresetVoice {
             ),
 
             (
-                "後鬼".to_string(),
+                "後鬼-人間ver.".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-27-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-27-1時です.wav").to_vec(),
@@ -859,7 +860,7 @@ impl PresetVoice {
             ),
 
             (
-                "ちび式じい".to_string(),
+                "ちび式じい-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-42-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-42-1時です.wav").to_vec(),
@@ -889,7 +890,7 @@ impl PresetVoice {
             ),
 
             (
-                "櫻歌ミコ".to_string(),
+                "櫻歌ミコ-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-43-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-43-1時です.wav").to_vec(),
@@ -919,7 +920,7 @@ impl PresetVoice {
             ),
 
             (
-                "小夜/SAYO".to_string(),
+                "小夜/SAYO-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-46-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-46-1時です.wav").to_vec(),
@@ -949,7 +950,7 @@ impl PresetVoice {
             ),
 
             (
-                "ナースロボ＿タイプＴ".to_string(),
+                "ナースロボ＿タイプＴ-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-47-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-47-1時です.wav").to_vec(),
@@ -979,7 +980,7 @@ impl PresetVoice {
             ),
 
             (
-                "†聖騎士 紅桜†".to_string(),
+                "†聖騎士 紅桜†-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-51-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-51-1時です.wav").to_vec(),
@@ -1009,7 +1010,7 @@ impl PresetVoice {
             ),
 
             (
-                "雀松朱司".to_string(),
+                "雀松朱司-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-52-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-52-1時です.wav").to_vec(),
@@ -1039,7 +1040,7 @@ impl PresetVoice {
             ),
 
             (
-                "麒ヶ島宗麟".to_string(),
+                "麒ヶ島宗麟-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-53-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-53-1時です.wav").to_vec(),
@@ -1069,7 +1070,7 @@ impl PresetVoice {
             ),
 
             (
-                "春歌ナナ".to_string(),
+                "春歌ナナ-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-54-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-54-1時です.wav").to_vec(),
@@ -1099,7 +1100,7 @@ impl PresetVoice {
             ),
 
             (
-                "猫使アル".to_string(),
+                "猫使アル-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-55-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-55-1時です.wav").to_vec(),
@@ -1129,7 +1130,7 @@ impl PresetVoice {
             ),
 
             (
-                "猫使ビィ".to_string(),
+                "猫使ビィ-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-58-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-58-1時です.wav").to_vec(),
@@ -1159,7 +1160,7 @@ impl PresetVoice {
             ),
 
             (
-                "猫使ビィ".to_string(),
+                "猫使ビィ-ノーマル".to_string(),
                 vec![
                     include_bytes!("../../resource/wav/50021-58-0時です.wav").to_vec(),
                     include_bytes!("../../resource/wav/50021-58-1時です.wav").to_vec(),
@@ -1188,10 +1189,10 @@ impl PresetVoice {
                 ]
             ),
 
-        ]}
+        ])}
     }
 
     pub fn get_data(&self, voice: Voice, index: usize) -> &Vec<u8> {
-        return &self.data[index + (voice as usize) * 24]
+        return &self.data.get(&voice.name).unwrap()[index]
     }
 }

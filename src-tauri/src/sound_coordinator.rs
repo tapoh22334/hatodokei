@@ -212,7 +212,7 @@ impl SoundCoordinator {
 
     fn play_preset_voice(preset_voice: &preset_voice::PresetVoice, sink: &mut Sink, voice: &String, index: usize) {
         let source = rodio::Decoder::new(std::io::Cursor::new(
-            preset_voice.get_data(preset_voice::Voice::try_from(voice).unwrap(), index).clone(),
+            preset_voice.get_data(preset_voice::Voice::from(voice.as_str()), index).clone(),
         ))
         .unwrap();
 
