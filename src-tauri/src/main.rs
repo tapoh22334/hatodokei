@@ -3,7 +3,10 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, WindowEvent};
+use tauri::{
+    CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
+    WindowEvent,
+};
 
 mod debug;
 mod preset_voice;
@@ -28,7 +31,12 @@ fn set_table_row(
 }
 
 #[tauri::command]
-fn play(voice: String, index: usize, effect: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
+fn play(
+    voice: String,
+    index: usize,
+    effect: bool,
+    tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>,
+) {
     SoundCoordinator::play_index(&tx, voice, index, effect, 100);
 }
 
@@ -71,26 +79,27 @@ fn main() {
                     window.minimize().unwrap();
                 }
             }
-            SystemTrayEvent::MenuItemClick { id, .. } => {
-                match id.as_str() {
-                    "Quit" => {
-                        std::process::exit(0);
-                    }
-                    "About" => {
-                        let window = app.get_window("main").unwrap();
-                        tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.6.0");
-                    }
-                    "Licenses" => {
-                        let local_window = tauri::WindowBuilder::new(
-                            app,
-                            "license",
-                            tauri::WindowUrl::App("/licenses/".into())
-                            ).build().ok().unwrap();
-                        local_window.set_title("Licenses").unwrap();
-                    }
-                    _ => {}
+            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+                "Quit" => {
+                    std::process::exit(0);
                 }
-            }
+                "About" => {
+                    let window = app.get_window("main").unwrap();
+                    tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.6.0");
+                }
+                "Licenses" => {
+                    let local_window = tauri::WindowBuilder::new(
+                        app,
+                        "license",
+                        tauri::WindowUrl::App("/licenses/".into()),
+                    )
+                    .build()
+                    .ok()
+                    .unwrap();
+                    local_window.set_title("Licenses").unwrap();
+                }
+                _ => {}
+            },
             _ => {}
         })
         .on_window_event(|event| {

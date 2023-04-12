@@ -50,14 +50,22 @@ impl Scheduler {
                 }
 
                 // Play sound if the time is come
-                if next_play.is_some() && Self::sub_minute(next_play.as_ref().unwrap().time, &now) == 0 {
+                if next_play.is_some()
+                    && Self::sub_minute(next_play.as_ref().unwrap().time, &now) == 0
+                {
                     let active = next_play.as_ref().unwrap().active;
                     if active {
                         let voice = next_play.as_ref().unwrap().voice.clone();
                         let effect = next_play.as_ref().unwrap().effect;
                         let index = next_play.as_ref().unwrap().time / 100;
                         println!("playing index: {:?}, {:?}", voice, index);
-                        SoundCoordinator::play_index(&tx_sc, voice, index.try_into().unwrap(), effect, 100);
+                        SoundCoordinator::play_index(
+                            &tx_sc,
+                            voice,
+                            index.try_into().unwrap(),
+                            effect,
+                            100,
+                        );
                     }
 
                     println!("NextPlay is set none");
@@ -82,7 +90,7 @@ impl Scheduler {
                     println!("Overwrite record {:?}", src);
                     row.active = src.active;
                     row.effect = src.effect;
-                    row.voice  = src.voice;
+                    row.voice = src.voice;
                 } else {
                     println!("New record {:?}", src);
                     time_table.push(src);
@@ -125,7 +133,8 @@ impl Scheduler {
                 .min_by_key(|x| {
                     ttelement::TTElement::sub(x.time, target.hour() * 100 + target.minute())
                 })
-                .unwrap().clone(),
+                .unwrap()
+                .clone(),
         );
     }
 }

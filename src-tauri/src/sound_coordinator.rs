@@ -31,8 +31,7 @@ pub enum SCMessage {
     PlayInfo(PlayInfo),
 }
 
-pub struct SoundCoordinator {
-}
+pub struct SoundCoordinator {}
 
 impl SoundCoordinator {
     pub fn activate() -> std::sync::mpsc::SyncSender<SCMessage> {
@@ -45,7 +44,8 @@ impl SoundCoordinator {
 
         std::thread::spawn(move || {
             let mut exsinks = Vec::<ExSink>::default();
-            let (mut _output_stream, mut output_stream_handle) = OutputStream::try_default().unwrap();
+            let (mut _output_stream, mut output_stream_handle) =
+                OutputStream::try_default().unwrap();
 
             loop {
                 let message = rx.recv().expect("sound_coordinator: disconnected");
@@ -65,18 +65,19 @@ impl SoundCoordinator {
                         if exsinks.is_empty() {
                             // output_stream_handle won't work when _output_stream is dropped.
                             println!("SoundCoordinator: Opened new output stream");
-                            (_output_stream, output_stream_handle) = OutputStream::try_default().unwrap_or_else(
-                                |e| {
+                            (_output_stream, output_stream_handle) = OutputStream::try_default()
+                                .unwrap_or_else(|e| {
                                     println!("SoundCoordinator: Failed to open device {:?}", e);
                                     (_output_stream, output_stream_handle)
                                 });
                         }
 
-                        let sink = Self::_play(&preset_voice, &playinfo.sources, &output_stream_handle);
+                        let sink =
+                            Self::_play(&preset_voice, &playinfo.sources, &output_stream_handle);
                         sink.set_volume(Self::to_volume_magnification(
-                                master_volume,
-                                playinfo.volume,
-                                ));
+                            master_volume,
+                            playinfo.volume,
+                        ));
 
                         exsinks.push(ExSink {
                             volume: playinfo.volume,
@@ -95,7 +96,6 @@ impl SoundCoordinator {
 
                         println!("SoundCoordinator: update master volume {:?}", master_volume);
                     }
-
                 }
             }
         });
@@ -110,7 +110,10 @@ impl SoundCoordinator {
         effect: bool,
         volume: u32,
     ) {
-        println!("SoundCoordinator: played full set list {:?} {:?} {:?} {:?}", voice, index, effect, volume);
+        println!(
+            "SoundCoordinator: played full set list {:?} {:?} {:?} {:?}",
+            voice, index, effect, volume
+        );
 
         let sources = if effect {
             vec![
@@ -119,9 +122,7 @@ impl SoundCoordinator {
                 SoundSource::VoiceIndex(voice, index),
             ]
         } else {
-            vec![
-                SoundSource::VoiceIndex(voice, index),
-            ]
+            vec![SoundSource::VoiceIndex(voice, index)]
         };
 
         let play_info = PlayInfo { volume, sources };
@@ -132,7 +133,11 @@ impl SoundCoordinator {
         tx.send(SCMessage::MasterVolume(mv)).unwrap();
     }
 
-    fn _play(preset_voice: &preset_voice::PresetVoice, sources: &Vec<SoundSource>, streamhandle: &OutputStreamHandle) -> Sink {
+    fn _play(
+        preset_voice: &preset_voice::PresetVoice,
+        sources: &Vec<SoundSource>,
+        streamhandle: &OutputStreamHandle,
+    ) -> Sink {
         let mut sink = Sink::try_new(streamhandle).unwrap();
 
         for source in sources {
@@ -192,9 +197,16 @@ impl SoundCoordinator {
         sink.append(sinwave);
     }
 
-    fn play_preset_voice(preset_voice: &preset_voice::PresetVoice, sink: &mut Sink, voice: &String, index: usize) {
+    fn play_preset_voice(
+        preset_voice: &preset_voice::PresetVoice,
+        sink: &mut Sink,
+        voice: &String,
+        index: usize,
+    ) {
         let source = rodio::Decoder::new(std::io::Cursor::new(
-            preset_voice.get_data(preset_voice::Voice::from(voice.as_str()), index).clone(),
+            preset_voice
+                .get_data(preset_voice::Voice::from(voice.as_str()), index)
+                .clone(),
         ))
         .unwrap();
 

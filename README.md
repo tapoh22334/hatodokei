@@ -62,8 +62,12 @@ npx prettier --write src/*.ts src/*.tsx
 ```
 
 - license file generation
+
+
+```
 (cd src-tauri; cargo about generate -o ../resource/THIRD-PARTY-NOTICES-cargo.txt about.hbs)
 (yarn licenses generate-disclaimer | tee resource/THIRD-PARTY-NOTICES-yarn.txt)
+```
 
 
 ### ソースコード
