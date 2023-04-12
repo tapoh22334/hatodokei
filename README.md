@@ -2,7 +2,8 @@
 
 シンプルな時報アプリ。一時間ごとに時間を読み上げます。
 
- - [ダウンロード](https://github.com/iwase22334/hatodokei/releases)
+ - [ダウンロード](https://booth.pm/ja/items/4187459?BOOTH-APP-CLIENT-VERSION=%2Bnvvurdsi%3D%2B%2Fsearch%2Fhair)
+ - [旧バージョンダウンロード](https://github.com/iwase22334/hatodokei/releases)
 
 ![キャプチャ1](https://raw.githubusercontent.com/iwase22334/hatodokei/main/capture/Capture1.png)
 ![キャプチャ2](https://raw.githubusercontent.com/iwase22334/hatodokei/main/capture/Capture2.png)
