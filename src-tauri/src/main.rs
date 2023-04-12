@@ -20,21 +20,6 @@ fn set_master_volume(volume: u32, tx: tauri::State<std::sync::mpsc::SyncSender<S
 }
 
 #[tauri::command]
-fn set_master_mute(mute: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
-    SoundCoordinator::set_master_mute(&tx, mute);
-}
-
-#[tauri::command]
-fn set_effect(effect: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
-    SoundCoordinator::set_effect(&tx, effect);
-}
-
-#[tauri::command]
-fn set_voice(voice: String, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
-    SoundCoordinator::set_voice(&tx, voice);
-}
-
-#[tauri::command]
 fn set_table_row(
     row: ttelement::TTElement,
     tx: tauri::State<std::sync::mpsc::SyncSender<SMessage>>,
@@ -43,8 +28,8 @@ fn set_table_row(
 }
 
 #[tauri::command]
-fn play(index: usize, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
-    SoundCoordinator::play_index(&tx, index, 100);
+fn play(voice: String, index: usize, effect: bool, tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>) {
+    SoundCoordinator::play_index(&tx, voice, index, effect, 100);
 }
 
 fn main() {
@@ -120,9 +105,6 @@ fn main() {
         .manage(tx_sound_coordinator)
         .invoke_handler(tauri::generate_handler![
             set_master_volume,
-            set_master_mute,
-            set_effect,
-            set_voice,
             set_table_row,
             play,
         ])

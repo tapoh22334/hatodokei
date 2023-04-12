@@ -1,46 +1,44 @@
 export interface TTElement {
   time: number;
   active: boolean;
+  effect: boolean;
+  voice: string;
 }
 
 export interface Settings {
   master_volume: number;
   master_mute: boolean;
-  effect: boolean;
-  voice: string;
   time_table: TTElement[];
 }
 
 export const defaultSettings: Settings = {
   master_volume: 80,
   master_mute: false,
-  effect: true,
-  voice: "つくよみちゃん-れいせい",
   time_table: [
-    { time: 0, active: true },
-    { time: 100, active: false },
-    { time: 200, active: false },
-    { time: 300, active: false },
-    { time: 400, active: false },
-    { time: 500, active: false },
-    { time: 600, active: false },
-    { time: 700, active: false },
-    { time: 800, active: true },
-    { time: 900, active: true },
-    { time: 1000, active: true },
-    { time: 1100, active: true },
-    { time: 1200, active: true },
-    { time: 1300, active: true },
-    { time: 1400, active: true },
-    { time: 1500, active: true },
-    { time: 1600, active: true },
-    { time: 1700, active: true },
-    { time: 1800, active: true },
-    { time: 1900, active: true },
-    { time: 2000, active: true },
-    { time: 2100, active: true },
-    { time: 2200, active: true },
-    { time: 2300, active: true },
+    { time: 0,    active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 100,  active: false , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 200,  active: false , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 300,  active: false , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 400,  active: false , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 500,  active: false , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 600,  active: false , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 700,  active: false , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 800,  active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 900,  active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1000, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1100, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1200, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1300, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1400, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1500, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1600, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1700, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1800, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 1900, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 2000, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 2100, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 2200, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
+    { time: 2300, active: true  , effect: true, voice: "つくよみちゃん-れいせい"},
   ],
 };
 
@@ -65,7 +63,7 @@ export const getVoiceStorage = () => {
   };
 
 export const getTimeTableStorage = () => {
-    const json = localStorage.getItem("hatodokeiTimeTable");
+    const json = localStorage.getItem("hatodokeiTimeTable2");
     return json === null ? null : JSON.parse(json);
   };
 
@@ -86,5 +84,5 @@ export const setVoiceStorage = (voice: string) => {
   };
 
 export const setTimeTableStorage = (timeTable: TTElement[]) => {
-    localStorage.setItem("hatodokeiTimeTable", JSON.stringify(timeTable));
+    localStorage.setItem("hatodokeiTimeTable2", JSON.stringify(timeTable));
   };
