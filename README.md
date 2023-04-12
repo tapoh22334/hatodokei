@@ -72,30 +72,17 @@ npx prettier --write src/*.ts src/*.tsx
 
 ### ソースコード
 
-本ソフトウェアはフリーソフトであり、ソースコードはMITライセンスで公開しています。 
-本ソフトウェアに含まれるOSSのライセンスは
- - https://github.com/iwase22334/hatodokei/blob/main/THIRD-PARTY-NOTICES.txt
-を参照してください。
+本ソフトウェアはフリーソフトであり、
+ソースコードはMITライセンスで公開しています。 
+含まれている音声ファイルは別ライセンスになります。
+注意してください。
 
 ### 音声について
-以下のボイスを使用しています。
+
+以下のソフトを使用して開発しています。
 
 ■無料AIトークソフトCOEIROINK: https://coeiroink.com
-
- ■COEIROINK:つくよみちゃん
- ■フリー素材キャラクターつくよみちゃん: https://tyc.rei-yumesaki.net
-
- ■COEIROINK:MANA
- ■音声合成キャラクターMANA: https://cf-mk.jimdofree.com/mana/
-
- ■COEIROINK:KANA
- ■音声合成キャラクターKANA: https://cf-mk.jimdofree.com/kana/
-
- ■COEIROINK:おふとんP
- ■おふとんPの作業部屋: http://mohumohuton.web.fc2.com
-
 ■ VOICEVOX: https://voicevox.hiroshiba.jp/
 
- ■VOICEVOX:ずんだもん
- ■VOICEVOX:四国めたん
-
+実際に使用している音声については、
+実行ファイルの「License」->「使用している音声」の項目を参照ください。
