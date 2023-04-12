@@ -1,0 +1,57 @@
+#[derive(Copy, Clone)]
+pub struct Voice {
+    name: String,
+}
+
+impl From<&str> for Voice {
+    fn from(v: &str) -> Self {
+        Voice { name: v.to_string() }
+    }
+}
+
+pub struct PresetVoice {
+    data: HashMap<String, Vec<Vec<u8>>>
+}
+
+impl PresetVoice {
+    pub fn new() -> Self {
+        PresetVoice { data: 
+            vec![
+{% for speaker in speakers %}
+            (
+                "{{ speaker.name }}".to_string(),
+                vec![
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-0時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-1時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-2時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-3時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-4時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-5時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-6時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-7時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-8時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-9時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-10時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-11時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-12時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-13時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-14時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-15時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-16時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-17時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-18時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-19時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-20時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-21時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-22時です.wav").to_vec(),
+                    include_bytes!("../../resource/wav/{{ speaker.port }}-{{ speaker.id }}-23時です.wav").to_vec(),
+                ]
+            ),
+{% endfor %}
+        ]}
+    }
+
+    pub fn get_data(&self, voice: Voice, index: usize) -> &Vec<u8> {
+        return &self.data[index + (voice as usize) * 24]
+    }
+}

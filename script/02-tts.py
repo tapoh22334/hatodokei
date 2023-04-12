@@ -66,7 +66,7 @@ def request_query_generate(port: str, text: str, speaker: str):
 
 if __name__ == "__main__":
     speakers = []
-    with open('speakers.txt', 'r', encoding="utf-8") as f:
+    with open('speakers.txt', 'r', encoding="utf-8", newline='\n') as f:
         for line in f:
             line = line.strip().split(':')
             d = (line[0], line[1], line[2], line[3])
