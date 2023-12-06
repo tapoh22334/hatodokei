@@ -35,9 +35,10 @@ fn play(
     voice: String,
     index: usize,
     effect: bool,
+    volume: u32,
     tx: tauri::State<std::sync::mpsc::SyncSender<SCMessage>>,
 ) {
-    SoundCoordinator::play_index(&tx, voice, index, effect, 100);
+    SoundCoordinator::play_index(&tx, voice, index, effect, volume);
 }
 
 fn main() {
@@ -85,7 +86,7 @@ fn main() {
                 }
                 "About" => {
                     let window = app.get_window("main").unwrap();
-                    tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v1.6.0");
+                    tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v2.0.0");
                 }
                 "Licenses" => {
                     let local_window = tauri::WindowBuilder::new(

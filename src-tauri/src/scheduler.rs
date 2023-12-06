@@ -58,13 +58,14 @@ impl Scheduler {
                         let voice = next_play.as_ref().unwrap().voice.clone();
                         let effect = next_play.as_ref().unwrap().effect;
                         let index = next_play.as_ref().unwrap().time / 100;
+                        let volume = next_play.as_ref().unwrap().volume;
                         println!("playing index: {:?}, {:?}", voice, index);
                         SoundCoordinator::play_index(
                             &tx_sc,
                             voice,
                             index.try_into().unwrap(),
                             effect,
-                            100,
+                            volume,
                         );
                     }
 
@@ -91,6 +92,7 @@ impl Scheduler {
                     row.active = src.active;
                     row.effect = src.effect;
                     row.voice = src.voice;
+                    row.volume = src.volume;
                 } else {
                     println!("New record {:?}", src);
                     time_table.push(src);

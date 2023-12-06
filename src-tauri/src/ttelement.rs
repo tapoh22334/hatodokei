@@ -5,6 +5,7 @@ pub struct TTElement {
     pub active: bool,
     pub effect: bool,
     pub voice: String,
+    pub volume: u32,
 }
 
 impl Default for TTElement {
@@ -14,6 +15,7 @@ impl Default for TTElement {
             active: true,
             effect: true,
             voice: "つくよみちゃん-れいせい".to_string(),
+            volume: 100,
         }
     }
 }

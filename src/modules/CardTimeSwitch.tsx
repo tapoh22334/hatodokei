@@ -15,6 +15,9 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import VolumeDown from "@mui/icons-material/VolumeDown";
+import VolumeUp from "@mui/icons-material/VolumeUp";
+import Slider from "@mui/material/Slider";
 
 import { defaultSettings, TTElement, Settings, getTimeTableStorage, setTimeTableStorage} from "./DefaultSetting";
 
@@ -29,17 +32,60 @@ const toTimeString = (hhmm: number) => {
 export type CardProps = {
     row: TTElement;
 }
+
+const voices = [
+  { value: "つくよみちゃん-れいせい", label: 'つくよみちゃん' },
+  { value: "MANA-のーまる", label: 'MANA' },
+  { value: "おふとんP-のーまるv2", label: 'おふとんP' },
+  { value: "ディアちゃん-のーまる", label: 'ディアちゃん' },
+  { value: "アルマちゃん-表-v2", label: 'アルマちゃん' },
+  { value: "KANA-のーまる", label: 'KANA' },
+  { value: "MANA+-ないしょばなし", label: 'MANA+-ないしょばなし' },
+  { value: "AI声優-朱花-のーまる", label: 'AI声優-朱花' },
+  { value: "AI声優-青葉-のーまる", label: 'AI声優-青葉' },
+  { value: "AI声優-銀芽-のーまる", label: 'AI声優-銀芽' },
+  { value: "伊能いお-ふつう", label: '伊能いお' },
+  { value: "あみたろ-のーまるv4", label: 'あみたろ' },
+  { value: "お星-テンション↑↑", label: 'お星' },
+  { value: "四国めたん-ノーマル", label: '四国めたん' },
+  { value: "ずんだもん-ノーマル", label: 'ずんだもん' },
+  { value: "ずんだもん-ヒソヒソ", label: 'ずんだもん-ヒソヒソ' },
+  { value: "春日部つむぎ-ノーマル", label: '春日部つむぎ' },
+  { value: "雨晴はう-ノーマル", label: '雨晴はう' },
+  { value: "波音リツ-ノーマル", label: '波音リツ' },
+  { value: "玄野武宏-ノーマル", label: '玄野武宏' },
+  { value: "白上虎太郎-ふつう", label: '白上虎太郎' },
+  { value: "青山龍星-ノーマル", label: '青山龍星' },
+  { value: "冥鳴ひまり-ノーマル", label: '冥鳴ひまり' },
+  { value: "九州そら-ノーマル", label: '九州そら' },
+  { value: "剣崎雌雄-ノーマル", label: '剣崎雌雄' },
+  { value: "WhiteCUL-ノーマル", label: 'WhiteCUL' },
+  { value: "後鬼-人間ver.", label: '後鬼-人間ver.' },
+  { value: "ちび式じい-ノーマル", label: 'ちび式じい' },
+  { value: "櫻歌ミコ-ノーマル", label: '櫻歌ミコ' },
+  { value: "小夜/SAYO-ノーマル", label: '小夜/SAYO' },
+  { value: "ナースロボ＿タイプＴ-ノーマル", label: 'ナースロボ＿タイプＴ' },
+  { value: "†聖騎士 紅桜†-ノーマル", label: '†聖騎士 紅桜†' },
+  { value: "雀松朱司-ノーマル", label: '雀松朱司' },
+  { value: "麒ヶ島宗麟-ノーマル", label: '麒ヶ島宗麟' },
+  { value: "春歌ナナ-ノーマル", label: '春歌ナナ' },
+  { value: "猫使アル-ノーマル", label: '猫使アル' },
+  { value: "猫使ビィ-ノーマル", label: '猫使ビィ' },
+  { value: "#ランダム", label: '#ランダム' },
+]
+
 export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
     const [time, setTime] = React.useState(props.row.time);
     const [active, setActive] = React.useState(props.row.active);
     const [effect, setEffect] = React.useState(props.row.effect);
     const [voice, setVoice] = React.useState(props.row.voice);
+    const [volume, setVolume] = React.useState(props.row.volume);
 
     console.log("card refresh %o", props);
 
     React.useEffect(() => {
         invoke("set_table_row", {
-            row: {time: time, active: active, effect: effect, voice: voice},
+          row: {time: time, active: active, effect: effect, voice: voice, volume: volume},
         });
 
         let newTimeTable = getTimeTableStorage();
@@ -47,10 +93,11 @@ export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
         newTimeTable[rewriteIndex].active = active;
         newTimeTable[rewriteIndex].voice = voice;
         newTimeTable[rewriteIndex].effect = effect;
+        newTimeTable[rewriteIndex].volume = volume;
         setTimeTableStorage(newTimeTable);
-    }, [active, effect, voice]);
+    }, [active, effect, voice, volume]);
 
-    const handleMuteChildChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleMuteChildChange = (_: React.ChangeEvent<HTMLInputElement>) => {
         setActive(!active);
     };
 
@@ -62,9 +109,13 @@ export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
       setVoice(event.target.value as string);
     };
 
+    const onVolumeChange = (_: Event, value: number | number[]) => {
+      setVolume(value as number);
+    };
+
     const handlePlayClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.stopPropagation()
-        invoke("play", {voice: voice, index: (time / 100) as number , effect: effect});
+        invoke("play", {voice: voice, index: (time / 100) as number , effect: effect, volume: volume});
 
         console.log("play clicked %d", (time / 100) as number);
     };
@@ -103,7 +154,21 @@ export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
                 </Stack>
             </AccordionSummary>
             <AccordionDetails>
-
+              <Stack
+                direction="row"
+                sx={{ mb: 1, mx: 1 }}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <VolumeDown />
+                <Slider
+                  //sx={{ color: "#fff" }}
+                  aria-label="volume"
+                  value={volume}
+                  onChange={onVolumeChange}
+                />
+                <VolumeUp />
+              </Stack>
                 <Stack
                   direction="row"
                   alignItems="center"
@@ -121,49 +186,15 @@ export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
                       <Select
                         labelId="voice-select"
                         id="voice-select"
-                        defaultValue={voice}
                         value={voice}
                         onChange={onVoiceChange}
                         label="Voice"
-                        >
-                            <MenuItem value="つくよみちゃん-れいせい">つくよみちゃん</MenuItem> 
-                            <MenuItem value="MANA-のーまる">MANA</MenuItem> 
-                            <MenuItem value="おふとんP-のーまるv2">おふとんP</MenuItem> 
-                            <MenuItem value="ディアちゃん-のーまる">ディアちゃん</MenuItem> 
-                            <MenuItem value="アルマちゃん-表-v2">アルマちゃん</MenuItem> 
-                            <MenuItem value="KANA-のーまる">KANA</MenuItem> 
-                            <MenuItem value="MANA+-ないしょばなし">MANA+-ないしょばなし</MenuItem> 
-                            <MenuItem value="AI声優-朱花-のーまる">AI声優-朱花</MenuItem> 
-                            <MenuItem value="AI声優-青葉-のーまる">AI声優-青葉</MenuItem> 
-                            <MenuItem value="AI声優-銀芽-のーまる">AI声優-銀芽</MenuItem> 
-                            <MenuItem value="伊能いお-ふつう">伊能いお</MenuItem> 
-                            <MenuItem value="あみたろ-のーまるv4">あみたろ</MenuItem> 
-                            <MenuItem value="お星-テンション↑↑">お星</MenuItem> 
-                            <MenuItem value="四国めたん-ノーマル">四国めたん</MenuItem> 
-                            <MenuItem value="ずんだもん-ノーマル">ずんだもん</MenuItem> 
-                            <MenuItem value="ずんだもん-ヒソヒソ">ずんだもん-ヒソヒソ</MenuItem> 
-                            <MenuItem value="春日部つむぎ-ノーマル">春日部つむぎ</MenuItem> 
-                            <MenuItem value="雨晴はう-ノーマル">雨晴はう</MenuItem> 
-                            <MenuItem value="波音リツ-ノーマル">波音リツ</MenuItem> 
-                            <MenuItem value="玄野武宏-ノーマル">玄野武宏</MenuItem> 
-                            <MenuItem value="白上虎太郎-ふつう">白上虎太郎</MenuItem> 
-                            <MenuItem value="青山龍星-ノーマル">青山龍星</MenuItem> 
-                            <MenuItem value="冥鳴ひまり-ノーマル">冥鳴ひまり</MenuItem> 
-                            <MenuItem value="九州そら-ノーマル">九州そら</MenuItem> 
-                            <MenuItem value="剣崎雌雄-ノーマル">剣崎雌雄</MenuItem> 
-                            <MenuItem value="WhiteCUL-ノーマル">WhiteCUL</MenuItem> 
-                            <MenuItem value="後鬼-人間ver.">後鬼-人間ver.</MenuItem> 
-                            <MenuItem value="ちび式じい-ノーマル">ちび式じい</MenuItem> 
-                            <MenuItem value="櫻歌ミコ-ノーマル">櫻歌ミコ</MenuItem> 
-                            <MenuItem value="小夜/SAYO-ノーマル">小夜/SAYO</MenuItem> 
-                            <MenuItem value="ナースロボ＿タイプＴ-ノーマル">ナースロボ＿タイプＴ</MenuItem> 
-                            <MenuItem value="†聖騎士 紅桜†-ノーマル">†聖騎士 紅桜†</MenuItem> 
-                            <MenuItem value="雀松朱司-ノーマル">雀松朱司</MenuItem> 
-                            <MenuItem value="麒ヶ島宗麟-ノーマル">麒ヶ島宗麟</MenuItem> 
-                            <MenuItem value="春歌ナナ-ノーマル">春歌ナナ</MenuItem> 
-                            <MenuItem value="猫使アル-ノーマル">猫使アル</MenuItem> 
-                            <MenuItem value="猫使ビィ-ノーマル">猫使ビィ</MenuItem> 
-                            <MenuItem value="#ランダム">#ランダム</MenuItem> 
+                      >
+                        {voices.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
                       </Select>
                     </FormControl>
 
