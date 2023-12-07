@@ -18,6 +18,13 @@ import Stack from "@mui/material/Stack";
 import Slider from "@mui/material/Slider";
 import VolumeDown from "@mui/icons-material/VolumeDown";
 import VolumeUp from "@mui/icons-material/VolumeUp";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
 
 export const MainView: React.VFC = (props) => {
   const [masterVolume, setMasterVolume] = useState(() => {
@@ -57,10 +64,14 @@ export const MainView: React.VFC = (props) => {
     console.log("TimeTable Changed!! %o", timeTable);
   }, [timeTable]);
 
+  const toolbarStyle = {
+    minHeight: 48
+  };
+
   return (
     <React.Fragment>
-    <AppBar sx={{overflow: 'hidden'}}>
-      <Toolbar>
+    <AppBar style={toolbarStyle} sx={{overflow: 'hidden'}}>
+      <Toolbar style={toolbarStyle}>
         <Box sx={{ width: 340 }} alignItems="center" position="sticky">
           <Stack
             spacing={0}
@@ -71,7 +82,7 @@ export const MainView: React.VFC = (props) => {
           >
             <VolumeDown />
             <Slider
-              sx={{ color: "#fff" }}
+              sx={{ mx: 2, color: "#fff" }}
               aria-label="MasterVolume"
               value={masterVolume}
               onChange={handleVolumeChange}
@@ -83,19 +94,28 @@ export const MainView: React.VFC = (props) => {
 
     </AppBar>
 
-    <Box sx={{ mt: 8, overflow: 'hidden', overflowY: 'scroll', height: 755}}>
-      <Stack
-        spacing={0.3}
-        alignItems="center"
-        sx={{ mb: 7 }}
-        //justifyContent="center"
-      >
-        {timeTable.length > 0 &&
-          timeTable.map((row) => {
-            const labelId = `stack-list-label-${row["time"]}`;
-            return <CardTimeSwitch row={row}/>;
-          })}
-      </Stack>
+    <Box sx={{ mt: 6, overflow: 'hidden', overflowY: 'scroll', height: 420}}>
+      <TableContainer sx={{ pb: 1, px: 1 }} component={Paper}>
+        <Table aria-label="table">
+          <TableHead>
+            <TableRow>
+              <TableCell align='center'></TableCell>
+              <TableCell align='center'></TableCell>
+              <TableCell align='center'>時間</TableCell>
+              <TableCell align='center'>効果音</TableCell>
+              <TableCell align='center'>声</TableCell>
+              <TableCell align='center'>音量</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {timeTable.length > 0 &&
+              timeTable.map((row) => {
+              const labelId = `stack-list-label-${row["time"]}`;
+              return <CardTimeSwitch row={row}/>;
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
 
     </React.Fragment>

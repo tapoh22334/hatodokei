@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api";
 import * as React from "react";
-import Card from "@mui/material/Card";
 import IconButton from "@mui/material/IconButton";
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import Typography from '@mui/material/Typography';
@@ -18,8 +17,11 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import VolumeDown from "@mui/icons-material/VolumeDown";
 import VolumeUp from "@mui/icons-material/VolumeUp";
 import Slider from "@mui/material/Slider";
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
 
 import { defaultSettings, TTElement, Settings, getTimeTableStorage, setTimeTableStorage} from "./DefaultSetting";
+import Checkbox from "@mui/material/Checkbox";
 
 const toTimeString = (hhmm: number) => {
     return (
@@ -35,12 +37,12 @@ export type CardProps = {
 
 const voices = [
   { value: "つくよみちゃん-れいせい", label: 'つくよみちゃん' },
-  { value: "MANA-のーまる", label: 'MANA' },
   { value: "おふとんP-のーまるv2", label: 'おふとんP' },
+  { value: "MANA-のーまる", label: 'MANA' },
+  { value: "MANA+-ないしょばなし", label: 'MANA+-ないしょばなし' },
+  { value: "KANA-のーまる", label: 'KANA' },
   { value: "ディアちゃん-のーまる", label: 'ディアちゃん' },
   { value: "アルマちゃん-表-v2", label: 'アルマちゃん' },
-  { value: "KANA-のーまる", label: 'KANA' },
-  { value: "MANA+-ないしょばなし", label: 'MANA+-ないしょばなし' },
   { value: "AI声優-朱花-のーまる", label: 'AI声優-朱花' },
   { value: "AI声優-青葉-のーまる", label: 'AI声優-青葉' },
   { value: "AI声優-銀芽-のーまる", label: 'AI声優-銀芽' },
@@ -121,87 +123,98 @@ export const CardTimeSwitch: React.VFC<CardProps> = (props) => {
     };
 
     return (
-      <Card variant="outlined">
-        <Accordion
+        <TableRow
+          sx={{
+            backgroundColor: active ? "white" : "lightgray"
+          }}
         >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
+          <TableCell
+            padding='none'
+            align='center'
+          >
+            <Switch
+              aria-label={`mute-child-switch-${time}`}
+              checked={active}
+              onChange={handleMuteChildChange}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </TableCell>
+
+          <TableCell
+            padding="checkbox"
+          >
+            <IconButton
+              aria-label="play"
+              onClick={ handlePlayClick }
             >
-                <Stack
-                  sx={{width: '100%'}}
-                  spacing={2}
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <IconButton
-                    aria-label="play"
-                    onClick={ handlePlayClick }
-                  >
-                    <PlayArrow />
-                  </IconButton>
+              <PlayArrow />
+            </IconButton>
+          </TableCell>
 
-                  <Typography noWrap>
-                    {toTimeString(time)}
-                  </Typography>
+          <TableCell
+            padding='none'
+            align='center'
+          >
+            <Typography noWrap>
+              {toTimeString(time)}
+            </Typography>
+          </TableCell>
 
-                  <Switch
-                    aria-label={`mute-child-switch-${time}`}
-                    checked={active}
-                    onChange={handleMuteChildChange}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </Stack>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Stack
-                direction="row"
-                sx={{ mb: 1, mx: 1 }}
-                alignItems="center"
-                justifyContent="center"
+          <TableCell
+            padding='none'
+            align='center'
+          >
+            <Checkbox checked={effect} onChange={onEffectChange}/>
+          </TableCell>
+
+          <TableCell
+            padding='none'
+            align='center'
+          >
+            <FormControl sx={{ minWidth: 160 , maxWidth: 160}} size="small">
+              <InputLabel id="voice-select-small-label"></InputLabel>
+              <Select
+                sx={{
+                  '& legend': { display: 'none' },
+                  '& fieldset': { top: 0 },
+                }}
+                labelId="voice-select"
+                id="voice-select"
+                value={voice}
+                onChange={onVoiceChange}
+                label="Voice"
               >
-                <VolumeDown />
-                <Slider
-                  //sx={{ color: "#fff" }}
-                  aria-label="volume"
-                  value={volume}
-                  onChange={onVolumeChange}
-                />
-                <VolumeUp />
-              </Stack>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="center"
-                >
+                {voices.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </TableCell>
 
-                    <FormControlLabel
-                      value="top"
-                      control={<Switch color="primary" checked={effect} onChange={onEffectChange}/>}
-                      label="効果音"
-                      labelPlacement="top"
-                    />
-                    <FormControl sx={{ minWidth: 160 , maxWidth: 160}} size="small">
-                      <InputLabel id="voice-select">声</InputLabel>
-                      <Select
-                        labelId="voice-select"
-                        id="voice-select"
-                        value={voice}
-                        onChange={onVoiceChange}
-                        label="Voice"
-                      >
-                        {voices.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+          <TableCell
+            padding='none'
+            align='center'
+          >
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="center"
+              sx={{ margin: 0 }}
+            >
+              <VolumeDown />
+              <Slider
+                sx={{ mx: 2, minWidth: 160, maxWidth: 160 }}
+                aria-label="volume"
+                value={volume}
+                onChange={onVolumeChange}
+              />
+              <VolumeUp />
+            </Stack>
+          </TableCell>
 
-                </Stack>
-            </AccordionDetails>
-        </Accordion>
-      </Card>
+        </TableRow>
     );
   };
 

@@ -60,10 +60,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 820,
         "resizable": false,
         "title": "鳩時計時報",
-        "width": 340
+        "width": 720,
+        "height": 480
       }
     ]
   }
