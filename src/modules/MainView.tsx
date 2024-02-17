@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api";
+import {useState, useEffect} from "react";
+import {invoke} from "@tauri-apps/api";
 import {
-    defaultSettings,
-    TTElement,
-    getMasterVolumeStorage,
-    getTimeTableStorage,
-    setMasterVolumeStorage,
-    setTimeTableStorage
-    } from "./DefaultSetting";
-import { CardTimeSwitch } from "./CardTimeSwitch";
+  defaultSettings,
+  TTElement,
+  getMasterVolumeStorage,
+  getTimeTableStorage,
+  setMasterVolumeStorage,
+  setTimeTableStorage
+} from "./DefaultSetting";
+import {CardTimeSwitch} from "./CardTimeSwitch";
+import {DialogSelectVoice} from "./DialogSelectVoice";
 
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
@@ -38,25 +39,25 @@ export const MainView: React.VFC = (props) => {
   });
 
   const [timeTable, setTimeTable] = useState<Array<TTElement>>(() => {
-      let initTimeTable = getTimeTableStorage();
-      if (initTimeTable === null) {
-          initTimeTable = defaultSettings.time_table
+    let initTimeTable = getTimeTableStorage();
+    if (initTimeTable === null) {
+      initTimeTable = defaultSettings.time_table
 
-          // TimeTbleStorage is not null able, Must be initialized here.
-          setTimeTableStorage(initTimeTable);
-          console.log("Not exist stored table");
-      }
-      console.log("time table: %o",initTimeTable);
-      return initTimeTable;
+      // TimeTbleStorage is not null able, Must be initialized here.
+      setTimeTableStorage(initTimeTable);
+      console.log("Not exist stored table");
+    }
+    console.log("time table: %o", initTimeTable);
+    return initTimeTable;
   });
 
   useEffect(() => {
-    invoke("set_master_volume", { volume: masterVolume });
+    invoke("set_master_volume", {volume: masterVolume});
     setMasterVolumeStorage(masterVolume);
     console.log("set master volume: %d", masterVolume);
   }, [masterVolume]);
 
-  const handleVolumeChange = (event: Event, value: number | number[]) => {
+  const handleVolumeChange = (_: Event, value: number | number[]) => {
     setMasterVolume(value as number);
   };
 
@@ -70,53 +71,53 @@ export const MainView: React.VFC = (props) => {
 
   return (
     <React.Fragment>
-    <AppBar style={toolbarStyle} sx={{overflow: 'hidden'}}>
-      <Toolbar style={toolbarStyle}>
-        <Box sx={{ width: 340 }} alignItems="center" position="sticky">
-          <Stack
-            spacing={0}
-            direction="row"
-            sx={{ my: 0 }}
-            alignItems="center"
-            justifyContent="center"
-          >
-            <VolumeDown />
-            <Slider
-              sx={{ mx: 2, color: "#fff" }}
-              aria-label="MasterVolume"
-              value={masterVolume}
-              onChange={handleVolumeChange}
-            />
-            <VolumeUp />
-          </Stack>
-        </Box>
-      </Toolbar>
+      <AppBar style={toolbarStyle} sx={{overflow: 'hidden'}}>
+        <Toolbar style={toolbarStyle}>
+          <Box sx={{width: 340}} alignItems="center" position="sticky">
+            <Stack
+              spacing={0}
+              direction="row"
+              sx={{my: 0}}
+              alignItems="center"
+              justifyContent="center"
+            >
+              <VolumeDown />
+              <Slider
+                sx={{mx: 2, color: "#fff"}}
+                aria-label="MasterVolume"
+                value={masterVolume}
+                onChange={handleVolumeChange}
+              />
+              <VolumeUp />
+            </Stack>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
-    </AppBar>
+      <Box sx={{mt: 6, overflow: 'hidden', overflowY: 'scroll', height: 420}}>
 
-    <Box sx={{ mt: 6, overflow: 'hidden', overflowY: 'scroll', height: 420}}>
-      <TableContainer sx={{ pb: 1, px: 1 }} component={Paper}>
-        <Table aria-label="table">
-          <TableHead>
-            <TableRow>
-              <TableCell align='center'></TableCell>
-              <TableCell align='center'></TableCell>
-              <TableCell align='center'>時間</TableCell>
-              <TableCell align='center'>効果音</TableCell>
-              <TableCell align='center'>声</TableCell>
-              <TableCell align='center'>音量</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {timeTable.length > 0 &&
-              timeTable.map((row) => {
-              const labelId = `stack-list-label-${row["time"]}`;
-              return <CardTimeSwitch row={row}/>;
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+        <TableContainer sx={{pb: 1, px: 1}} component={Paper}>
+          <Table aria-label="table">
+            <TableHead>
+              <TableRow>
+                <TableCell align='center'></TableCell>
+                <TableCell align='center'></TableCell>
+                <TableCell align='center'>時間</TableCell>
+                <TableCell align='center'>効果音</TableCell>
+                <TableCell align='center'><DialogSelectVoice timeTable={timeTable} setTimeTable={setTimeTable} /></TableCell>
+                <TableCell align='center'>音量</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {timeTable.length > 0 &&
+                timeTable.map((_, index) => {
+                  const labelId = `stack-list-label-${timeTable[index]["time"]}`;
+                  return <CardTimeSwitch timeTable={timeTable} setTimeTable={setTimeTable} index={index} />;
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
 
     </React.Fragment>
   );

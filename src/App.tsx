@@ -1,7 +1,7 @@
 import "./App.css";
-import { Licenses } from "./modules/LicensesView";
-import { MainView } from "./modules/MainView";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {Licenses} from "./modules/LicensesView";
+import {MainView} from "./modules/MainView";
+import {BrowserRouter, Routes, Route} from "react-router-dom";
 
 function App() {
   return (
