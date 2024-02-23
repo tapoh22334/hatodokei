@@ -87,6 +87,7 @@ export const MainView: React.VFC = (props) => {
                 aria-label="MasterVolume"
                 value={masterVolume}
                 onChange={handleVolumeChange}
+                step={5}
               />
               <VolumeUp />
             </Stack>

@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Hatodokei",
-    "version": "2.1.0"
+    "version": "2.2.0"
   },
   "tauri": {
     "allowlist": {
@@ -59,12 +59,13 @@
     },
     "windows": [
       {
-        "fullscreen": false,
-        "resizable": false,
         "title": "鳩時計時報",
         "width": 720,
         "height": 480,
-        "visible": false
+        "visible": false,
+        "minimizable": false,
+        "fullscreen": false,
+        "resizable": false
       }
     ]
   }

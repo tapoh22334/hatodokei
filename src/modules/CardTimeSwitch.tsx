@@ -166,6 +166,8 @@ export const CardTimeSwitch: React.VFC<CardProps> = ({timeTable, setTimeTable, i
             aria-label="volume"
             value={timeTable[index].volume}
             onChange={onVolumeChange}
+            valueLabelDisplay="auto"
+            step={5}
           />
           <VolumeUp />
         </Stack>

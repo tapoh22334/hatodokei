@@ -51,10 +51,10 @@ fn main() {
     let about = CustomMenuItem::new("About".to_string(), "About");
     let license = CustomMenuItem::new("Licenses".to_string(), "Licenses");
     let tray_menu = SystemTrayMenu::new()
-        .add_item(quit)
-        .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(about)
-        .add_item(license);
+        .add_item(license)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(quit);
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     // Show main window
@@ -86,7 +86,7 @@ fn main() {
                 }
                 "About" => {
                     let window = app.get_window("main").unwrap();
-                    tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v2.1.0");
+                    tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v2.2.0");
                 }
                 "Licenses" => {
                     let local_window = tauri::WindowBuilder::new(
@@ -103,12 +103,17 @@ fn main() {
             },
             _ => {}
         })
-        .on_window_event(|event| {
-            if let WindowEvent::Resized(size) = event.event() {
+        .on_window_event(|event| match event.event() {
+            WindowEvent::Resized(size) => {
                 if size.width == 0 && size.height == 0 {
                     event.window().hide().unwrap();
                 }
             }
+            WindowEvent::CloseRequested { api, .. } => {
+                event.window().hide().unwrap();
+                api.prevent_close();
+            }
+            _ => {}
         })
         .system_tray(system_tray)
         .manage(tx_scheduler)
