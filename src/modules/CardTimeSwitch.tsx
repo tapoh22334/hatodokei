@@ -52,24 +52,28 @@ export const CardTimeSwitch: React.VFC<CardProps> = ({timeTable, setTimeTable, i
     let newTimeTable: TTElement[] = [...timeTable]
     newTimeTable[index].active = !timeTable[index].active
     setTimeTable(newTimeTable)
+    setTimeTableStorage(newTimeTable)
   };
 
   const onEffectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let newTimeTable: TTElement[] = [...timeTable]
     newTimeTable[index].effect = event.target.checked as boolean
     setTimeTable(newTimeTable)
+    setTimeTableStorage(newTimeTable)
   };
 
   const onVoiceChange = (event: SelectChangeEvent) => {
     let newTimeTable: TTElement[] = [...timeTable]
     newTimeTable[index].voice = event.target.value as string
     setTimeTable(newTimeTable)
+    setTimeTableStorage(newTimeTable)
   };
 
   const onVolumeChange = (_: Event, value: number | number[]) => {
     let newTimeTable: TTElement[] = [...timeTable]
     newTimeTable[index].volume = value as number
     setTimeTable(newTimeTable)
+    setTimeTableStorage(newTimeTable)
   };
 
   const handlePlayClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
