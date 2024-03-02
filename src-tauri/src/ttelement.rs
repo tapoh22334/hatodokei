@@ -19,9 +19,3 @@ impl Default for TTElement {
         }
     }
 }
-
-impl TTElement {
-    pub fn sub(t1: u32, t2: u32) -> u32 {
-        ((t1 + 2359 - t2) % 2359) as u32
-    }
-}

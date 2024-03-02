@@ -86,7 +86,7 @@ fn main() {
                 }
                 "About" => {
                     let window = app.get_window("main").unwrap();
-                    tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v2.2.0");
+                    tauri::api::dialog::message(Some(&window), "Hatodokei", "鳩時計時報 v2.3.0");
                 }
                 "Licenses" => {
                     let local_window = tauri::WindowBuilder::new(

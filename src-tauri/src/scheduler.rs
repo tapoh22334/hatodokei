@@ -4,6 +4,7 @@ use crate::ttelement;
 
 use chrono::DateTime;
 use chrono::Local;
+use chrono::TimeDelta;
 use chrono::Timelike;
 
 pub enum SMessage {
@@ -15,7 +16,10 @@ pub enum SMessage {
 }
 
 pub struct Scheduler {}
-const MAX_FPS: f32 = 1.0;
+const POLLING_OFFSET_SECS: u64 = 1;
+const EFFECT_SECS: u64 = 3;
+const DETECTION_ERROR_SECS: u64 = 5;
+
 impl Scheduler {
     pub fn activate(
         tx_sc: std::sync::mpsc::SyncSender<SCMessage>,
@@ -24,34 +28,36 @@ impl Scheduler {
         let (tx, rx) = mpsc::sync_channel::<SMessage>(1);
         let mut time_table: Vec<ttelement::TTElement> = Vec::new();
         let mut next_play: Option<ttelement::TTElement> = None;
+        let mut prev_play: Option<ttelement::TTElement> = None;
 
         std::thread::spawn(move || {
-            let sleep_milliseconds = (1000. / MAX_FPS) as u32;
-
             loop {
                 let mut table_changed: bool = false;
-                let now: DateTime<Local> = Local::now();
-
-                println!("Scheduler: {}:", now);
-                println!("[next:{:?}]", next_play);
 
                 // Recv table change event
-                let rv =
-                    rx.recv_timeout(std::time::Duration::from_millis(sleep_milliseconds as u64));
+                let sleep_secs = POLLING_OFFSET_SECS;
+                let rv = rx.recv_timeout(std::time::Duration::from_secs(sleep_secs));
                 if let Ok(msg) = rv {
                     println!("recved OK");
                     table_changed = Self::process_message(&mut time_table, msg);
-                    next_play = None;
                 }
+
+                let now: DateTime<Local> = Local::now();
+                println!("Scheduler: {}:", now);
+                println!("[next:{:?}]", next_play);
 
                 // Update target to play
                 if next_play.is_none() || table_changed {
-                    next_play = Self::get_next_play(&time_table, &now);
+                    next_play = Self::get_next_play(&prev_play, &time_table);
                 }
 
                 // Play sound if the time is come
                 if next_play.is_some()
-                    && Self::sub_minute(next_play.as_ref().unwrap().time, &now) == 0
+                    && Self::should_play_now(
+                        &Self::to_time_delta_from_u32(next_play.as_ref().unwrap().time),
+                        &Self::to_time_delta_from_date_time(&now),
+                        next_play.as_ref().unwrap().effect,
+                    )
                 {
                     let active = next_play.as_ref().unwrap().active;
                     if active {
@@ -70,6 +76,7 @@ impl Scheduler {
                     }
 
                     println!("NextPlay is set none");
+                    prev_play = next_play;
                     next_play = None;
                 }
 
@@ -110,33 +117,185 @@ impl Scheduler {
         true
     }
 
-    fn sub_minute(time: u32, now: &DateTime<Local>) -> i64 {
+    fn should_play_now(target: &TimeDelta, now: &TimeDelta, effect: bool) -> bool {
+        let offset = if effect {
+            EFFECT_SECS.try_into().unwrap()
+        } else {
+            0
+        };
+
+        let offsetted_target = Self::advance_counterclockwise(target, offset);
+
+        let clockwise_secs = Self::clockwise_sub_seconds(&offsetted_target, now);
+        let counterclockwise_secs = Self::counterclockwise_sub_seconds(&offsetted_target, now);
+        let past = clockwise_secs >= counterclockwise_secs;
+
+        if past && counterclockwise_secs < DETECTION_ERROR_SECS {
+            return true;
+        }
+
+        false
+    }
+
+    fn to_time_delta_from_u32(time: u32) -> TimeDelta {
         let h = chrono::Duration::hours((time / 100).into());
         let m = chrono::Duration::minutes((time % 100).into());
-        let now_h = chrono::Duration::hours(now.hour().into());
-        let now_m = chrono::Duration::minutes(now.minute().into());
 
-        let sub = (h + m) - (now_h + now_m);
-        sub.num_minutes()
+        h + m
+    }
+
+    fn to_time_delta_from_date_time(time: &DateTime<Local>) -> TimeDelta {
+        let h = chrono::Duration::hours(time.hour().into());
+        let m = chrono::Duration::minutes(time.minute().into());
+        let s = chrono::Duration::seconds(time.second().into());
+
+        h + m + s
+    }
+
+    fn advance_counterclockwise(time: &TimeDelta, secs: i64) -> TimeDelta {
+        let mut sub = *time - chrono::Duration::seconds(secs);
+        if sub.num_seconds() < 0 {
+            sub = sub + chrono::Duration::days(1);
+        }
+
+        sub
+    }
+
+    fn advance_clockwise(time: &TimeDelta, secs: i64) -> TimeDelta {
+        let mut added = *time + chrono::Duration::seconds(secs);
+        if added.num_days() >= 1 {
+            added = added - chrono::Duration::days(1);
+        }
+
+        added
+    }
+
+    fn clockwise_sub_seconds(target: &TimeDelta, now: &TimeDelta) -> u64 {
+        let adjusted_target: TimeDelta = if target < now {
+            *target + chrono::Duration::days(1).into()
+        } else {
+            *target
+        };
+
+        let sub = adjusted_target - *now;
+        sub.num_seconds().try_into().unwrap()
+    }
+
+    fn counterclockwise_sub_seconds(target: &TimeDelta, now: &TimeDelta) -> u64 {
+        let adjusted_now: TimeDelta = if now < target {
+            *now + chrono::Duration::days(1).into()
+        } else {
+            *now
+        };
+
+        let sub = adjusted_now - *target;
+        sub.num_seconds().try_into().unwrap()
     }
 
     fn get_next_play(
+        prev_play: &Option<ttelement::TTElement>,
         time_table: &Vec<ttelement::TTElement>,
-        now: &DateTime<Local>,
     ) -> Option<ttelement::TTElement> {
         if time_table.is_empty() {
             return None;
         }
 
-        let target = *now + chrono::Duration::minutes(1);
-        return Some(
+        let base = if prev_play.is_some() {
+            Self::to_time_delta_from_u32(prev_play.as_ref().unwrap().time)
+        } else {
+            let now = Local::now();
+            Self::to_time_delta_from_date_time(&now)
+        };
+
+        // Find the next minute for the given element
+        // For example, if prev_play is 23:00, then find the nearest element clockwise from 23:01
+        let target = Self::advance_clockwise(&base, 60);
+        Some(
             time_table
                 .iter()
                 .min_by_key(|x| {
-                    ttelement::TTElement::sub(x.time, target.hour() * 100 + target.minute())
+                    Self::clockwise_sub_seconds(&Self::to_time_delta_from_u32(x.time), &target)
                 })
                 .unwrap()
                 .clone(),
-        );
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct TestCondition {
+        target: TimeDelta,
+        now: TimeDelta,
+        effect: bool,
+        expect: bool,
+    }
+
+    impl std::fmt::Display for TestCondition {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(
+                f,
+                "({}:{}:{}, {}:{}:{}, {:?}, {:?})",
+                self.target.num_seconds() / 3600,
+                self.target.num_seconds() % 3600 / 60,
+                self.target.num_seconds() % 3600 % 60,
+                self.now.num_seconds() / 3600,
+                self.now.num_seconds() % 3600 / 60,
+                self.now.num_seconds() % 3600 % 60,
+                self.effect,
+                self.expect
+            )
+        }
+    }
+
+    fn hms(hours: i64, mins: i64, secs: i64) -> TimeDelta {
+        TimeDelta::hours(hours) + TimeDelta::minutes(mins) + TimeDelta::seconds(secs)
+    }
+
+    #[test]
+    fn it_works() {
+        #[rustfmt::skip]
+        let test_conditions: Vec<TestCondition> = vec![
+            TestCondition { target: hms( 0,  0,  0), now: hms(23, 59, 59), effect: false, expect: false },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  0), effect: false, expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  1), effect: false, expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  2), effect: false, expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  3), effect: false, expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  4), effect: false, expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  5), effect: false, expect: false },
+            TestCondition { target: hms( 1,  0,  0), now: hms( 0, 59, 59), effect: false, expect: false },
+            TestCondition { target: hms( 1,  0,  0), now: hms( 1,  0,  4), effect: false, expect: true },
+            TestCondition { target: hms( 1,  0,  0), now: hms( 1,  0,  5), effect: false, expect: false },
+            TestCondition { target: hms(23, 59, 59), now: hms(23, 59, 58), effect: false, expect: false },
+            TestCondition { target: hms(23, 59, 59), now: hms(23, 59, 59), effect: false, expect: true },
+            TestCondition { target: hms(23, 59, 59), now: hms( 0,  0,  3), effect: false, expect: true },
+            TestCondition { target: hms(23, 59, 59), now: hms( 0,  0,  4), effect: false, expect: false },
+            TestCondition { target: hms( 0,  0,  0), now: hms(23, 59, 56), effect: true,  expect: false },
+            TestCondition { target: hms( 0,  0,  0), now: hms(23, 59, 57), effect: true,  expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms(23, 59, 58), effect: true,  expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms(23, 59, 59), effect: true,  expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  0), effect: true,  expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  1), effect: true,  expect: true },
+            TestCondition { target: hms( 0,  0,  0), now: hms( 0,  0,  2), effect: true,  expect: false },
+            TestCondition { target: hms( 1,  0,  0), now: hms( 0, 59, 56), effect: true,  expect: false },
+            TestCondition { target: hms( 1,  0,  0), now: hms( 0, 59, 57), effect: true,  expect: true },
+            TestCondition { target: hms( 1,  0,  0), now: hms( 1,  0,  1), effect: true,  expect: true },
+            TestCondition { target: hms( 1,  0,  0), now: hms( 1,  0,  2), effect: true,  expect: false },
+            TestCondition { target: hms(23, 59, 59), now: hms(23, 59, 55), effect: true,  expect: false },
+            TestCondition { target: hms(23, 59, 59), now: hms(23, 59, 56), effect: true,  expect: true },
+            TestCondition { target: hms(23, 59, 59), now: hms( 0,  0,  0), effect: true,  expect: true },
+            TestCondition { target: hms(23, 59, 59), now: hms( 0,  0,  1), effect: true,  expect: false },
+        ];
+
+        for test_condition in test_conditions.iter() {
+            let actual = Scheduler::should_play_now(
+                &test_condition.target,
+                &test_condition.now,
+                test_condition.effect,
+            );
+            assert_eq!(test_condition.expect, actual, "{}", test_condition);
+        }
     }
 }
