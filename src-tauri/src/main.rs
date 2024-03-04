@@ -55,7 +55,9 @@ fn main() {
         .add_item(license)
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(quit);
-    let system_tray = SystemTray::new().with_menu(tray_menu);
+    let system_tray = SystemTray::new()
+        .with_menu(tray_menu)
+        .with_tooltip("鳩時計時報 設定");
 
     // Show main window
     let context = tauri::generate_context!();
